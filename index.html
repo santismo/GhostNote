@@ -1,1 +1,2114 @@
+<!doctype html>
+<!--
+  GhostNote: single-file Chrome app with inline UI, audio engine, MIDI engine, and presets
+  Designed for local use with multichannel drum piezo inputs routed to MIDI drum notes
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GhostNote</title>
+  <style>
+    :root {
+      --font-display: "Avenir Next", "Futura", "Gill Sans", "Trebuchet MS", sans-serif;
+      --font-sans: "Avenir", "Candara", "Optima", "Segoe UI", sans-serif;
+      --bg: #0b0f12;
+      --bg-2: #0f1419;
+      --panel: #151c22;
+      --panel-2: #1b232b;
+      --text: #e7f0f2;
+      --muted: #9db0b8;
+      --accent: #27f0c5;
+      --accent-2: #ffb447;
+      --danger: #ff4f6e;
+      --border: #26313b;
+      --pad: #131a20;
+      --pad-ring: rgba(39, 240, 197, 0.25);
+      --meter: #27f0c5;
+      --wave: #93f5dc;
+      --shadow: rgba(7, 10, 13, 0.5);
+    }
 
+    body.theme-neon {
+      --bg: #09070f;
+      --bg-2: #130d1f;
+      --panel: #1a1330;
+      --panel-2: #251b3d;
+      --text: #f1edff;
+      --muted: #b1a8d8;
+      --accent: #58f0ff;
+      --accent-2: #ff7ad9;
+      --danger: #ff5c93;
+      --border: #2f2550;
+      --pad: #1b1431;
+      --pad-ring: rgba(88, 240, 255, 0.25);
+      --meter: #58f0ff;
+      --wave: #c8a7ff;
+    }
+
+    body.theme-ember {
+      --bg: #120b0b;
+      --bg-2: #1b1111;
+      --panel: #221414;
+      --panel-2: #2b1a1a;
+      --text: #f7eee7;
+      --muted: #c7a99a;
+      --accent: #ff7a3d;
+      --accent-2: #ffd166;
+      --danger: #ff5a75;
+      --border: #3a2525;
+      --pad: #1c1212;
+      --pad-ring: rgba(255, 122, 61, 0.25);
+      --meter: #ff7a3d;
+      --wave: #ffc09a;
+    }
+
+    body.theme-ocean {
+      --bg: #06131a;
+      --bg-2: #0b1d28;
+      --panel: #0f2330;
+      --panel-2: #152d3a;
+      --text: #e9f6ff;
+      --muted: #9fb6c6;
+      --accent: #3dd9ff;
+      --accent-2: #7affc7;
+      --danger: #ff6b8a;
+      --border: #1e3948;
+      --pad: #0c1c26;
+      --pad-ring: rgba(61, 217, 255, 0.25);
+      --meter: #3dd9ff;
+      --wave: #9be7ff;
+    }
+
+    body.theme-forest {
+      --bg: #0b130e;
+      --bg-2: #101b15;
+      --panel: #122118;
+      --panel-2: #182a1f;
+      --text: #edf6f0;
+      --muted: #a6b8ac;
+      --accent: #5bff9b;
+      --accent-2: #f0ff7a;
+      --danger: #ff6f8b;
+      --border: #243628;
+      --pad: #0f1912;
+      --pad-ring: rgba(91, 255, 155, 0.25);
+      --meter: #5bff9b;
+      --wave: #b5ffd1;
+    }
+
+    body.theme-dusk {
+      --bg: #0d0b1a;
+      --bg-2: #161027;
+      --panel: #1b1430;
+      --panel-2: #241a3d;
+      --text: #f2efff;
+      --muted: #b7addb;
+      --accent: #9b7bff;
+      --accent-2: #ff8bd1;
+      --danger: #ff5c93;
+      --border: #2d244a;
+      --pad: #171027;
+      --pad-ring: rgba(155, 123, 255, 0.25);
+      --meter: #9b7bff;
+      --wave: #d0c0ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(140deg, var(--bg), var(--bg-2));
+      color: var(--text);
+      font-family: var(--font-sans);
+      letter-spacing: 0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(39, 240, 197, 0.08), transparent 40%),
+        radial-gradient(circle at 85% 10%, rgba(255, 180, 71, 0.08), transparent 45%),
+        radial-gradient(circle at 75% 75%, rgba(39, 240, 197, 0.06), transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(transparent 95%, rgba(255, 255, 255, 0.03) 96%);
+      background-size: 100% 28px;
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px 22px 180px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      background: var(--panel);
+      border-radius: 16px;
+      box-shadow: 0 18px 40px var(--shadow);
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-size: 26px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .audio-toggle {
+      min-width: 120px;
+    }
+
+    .audio-toggle.on {
+      background: var(--accent);
+      color: #0a1012;
+      border: none;
+    }
+
+    .audio-toggle.off {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .controls {
+      display: flex;
+      flex: 1;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      min-width: 140px;
+    }
+
+    .control input,
+    .control select {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: var(--font-sans);
+    }
+
+    .control .inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control .hint {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #0a1012;
+      border: none;
+    }
+
+    button.danger {
+      background: transparent;
+      color: var(--danger);
+      border-color: rgba(255, 79, 110, 0.4);
+    }
+
+    button.flash {
+      background: var(--accent-2);
+      color: #0a1012;
+      border: none;
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(255, 180, 71, 0.5);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.9fr) minmax(320px, 0.9fr);
+      gap: 18px;
+    }
+
+    .kit-stage {
+      position: relative;
+      min-height: 520px;
+      border-radius: 22px;
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 35%),
+        radial-gradient(circle at 30% 20%, rgba(39, 240, 197, 0.07), transparent 50%),
+        var(--panel);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .kit-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .status {
+      display: none;
+      padding: 10px 12px;
+      background: rgba(255, 79, 110, 0.12);
+      border: 1px solid rgba(255, 79, 110, 0.4);
+      color: var(--text);
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .status.active {
+      display: block;
+    }
+
+    .pad {
+      position: absolute;
+      width: var(--pad-w, 150px);
+      height: var(--pad-h, 140px);
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08), transparent 45%), var(--pad);
+      border: 1px solid var(--border);
+      border-radius: var(--pad-radius, 18px);
+      padding: 10px 12px;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: grab;
+      animation: floatIn 0.6s ease-out both;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .pad.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--pad-ring), 0 20px 36px rgba(0, 0, 0, 0.3);
+    }
+
+    .pad.dragging {
+      cursor: grabbing;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .pad.pulse {
+      animation: pulse 0.16s ease-out;
+    }
+
+    .pad[data-type="kick"] {
+      --pad-w: 210px;
+      --pad-h: 170px;
+      --pad-radius: 50% / 55%;
+    }
+
+    .pad[data-type="snare"],
+    .pad[data-type="tom"] {
+      --pad-w: 150px;
+      --pad-h: 150px;
+      --pad-radius: 50%;
+    }
+
+    .pad[data-type="hihat"] {
+      --pad-w: 130px;
+      --pad-h: 110px;
+      --pad-radius: 45% 45% 55% 55%;
+    }
+
+    .pad[data-type="cymbal"] {
+      --pad-w: 190px;
+      --pad-h: 110px;
+      --pad-radius: 999px;
+    }
+
+    .pad[data-type="percussion"] {
+      --pad-w: 150px;
+      --pad-h: 130px;
+      --pad-radius: 40px;
+    }
+
+    .pad[data-type="other"] {
+      --pad-w: 150px;
+      --pad-h: 130px;
+      --pad-radius: 22px;
+    }
+
+    .pad-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .pad-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pad-meter {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .pad-meter span {
+      display: block;
+      height: 100%;
+      width: 100%;
+      transform-origin: left center;
+      transform: scaleX(0);
+      background: linear-gradient(90deg, var(--meter), var(--accent-2));
+    }
+
+    .pad-panel {
+      padding: 18px;
+      background: var(--panel);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 520px;
+    }
+
+    .pad-panel h2 {
+      font-family: var(--font-display);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .panel-group {
+      display: grid;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-group:last-child {
+      border-bottom: none;
+    }
+
+    .panel-field {
+      display: grid;
+      gap: 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+    }
+
+    .panel-field input,
+    .panel-field select {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: var(--font-sans);
+    }
+
+    .panel-field .inline {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .panel-muted {
+      font-size: 11px;
+      text-transform: none;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .pad-visual {
+      width: 100%;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: block;
+    }
+
+    .eq-grid {
+      position: relative;
+      width: 100%;
+    }
+
+    .eq-handle {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #0a1012;
+      font-size: 10px;
+      font-weight: bold;
+      display: grid;
+      place-items: center;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+      user-select: none;
+    }
+
+    .eq-handle[data-role="lp"] {
+      background: var(--accent-2);
+    }
+
+    .eq-handle:active {
+      cursor: grabbing;
+    }
+
+    .bottombar {
+      position: fixed;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 40px var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      z-index: 5;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 6, 9, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(420px, 92vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .modal-card h3 {
+      margin: 0;
+      font-family: var(--font-display);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-size: 16px;
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 0 0 rgba(39, 240, 197, 0.4);
+      }
+      60% {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 0 20px 6px rgba(39, 240, 197, 0.4);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+      }
+    }
+
+    @media (max-width: 1100px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .pad-panel {
+        min-height: auto;
+      }
+      .bottombar {
+        position: static;
+        margin-top: 12px;
+      }
+      .app {
+        padding-bottom: 26px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .brand {
+        text-align: center;
+      }
+      .controls {
+        flex-direction: column;
+      }
+      .kit-stage {
+        min-height: 460px;
+      }
+    }
+  </style>
+</head>
+<body class="theme-dark">
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">GhostNote 👻</div>
+      <button id="toggleAudio" class="audio-toggle off">Audio Off</button>
+    </header>
+
+    <div id="status" class="status"></div>
+
+    <main>
+      <section>
+        <div id="kitStage" class="kit-stage"></div>
+        <div class="kit-actions">
+          <button id="addPad" class="primary">Add Drum Piece</button>
+          <span class="panel-muted">Click a pad to edit. Drag pads to edit layout.</span>
+        </div>
+      </section>
+
+      <aside id="padPanel" class="pad-panel">
+        <h2>Pad Settings</h2>
+        <div id="padPanelEmpty" class="panel-muted">Select a pad to edit its settings.</div>
+
+        <div id="padPanelContent" style="display:none;">
+          <div class="panel-group">
+            <label class="panel-field">
+              Lock Pad Settings
+              <div class="inline">
+                <input id="padLocked" type="checkbox">
+                <span class="panel-muted">Lock all settings for this pad.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="panel-group">
+            <label class="panel-field">
+              Name
+              <input id="padName" type="text">
+            </label>
+            <label class="panel-field">
+              Type
+              <select id="padType">
+                <option value="kick">Kick</option>
+                <option value="snare">Snare</option>
+                <option value="tom">Tom</option>
+                <option value="hihat">Hi-hat</option>
+                <option value="cymbal">Cymbal</option>
+                <option value="percussion">Percussion</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label class="panel-field">
+              Input Channel (1-16)
+              <select id="padChannel"></select>
+            </label>
+            <label class="panel-field">
+              MIDI Note
+              <input id="padMidiNote" type="number" min="0" max="127">
+            </label>
+          </div>
+
+          <div class="panel-group">
+            <label class="panel-field">
+              Sensitivity
+              <input id="padSensitivity" type="range" min="0.3" max="4" step="0.05">
+            </label>
+            <label class="panel-field">
+              Velocity Curve
+              <select id="padVelocityCurve">
+                <option value="linear">Linear</option>
+                <option value="soft">Soft</option>
+                <option value="hard">Hard</option>
+              </select>
+            </label>
+            <label class="panel-field">
+              Retrigger Mask Override (ms)
+              <input id="padMaskOverride" type="number" min="0" max="2000" placeholder="Use global">
+            </label>
+          </div>
+
+          <div class="panel-group">
+            <label class="panel-field">
+              Hi-hat Role
+              <select id="padHihatRole">
+                <option value="none">None</option>
+                <option value="open">Open Hat</option>
+                <option value="closed">Closed Hat</option>
+              </select>
+            </label>
+            <label class="panel-field">
+              Open Hat Choked By Closed
+              <select id="padHihatChoked">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </label>
+            <label class="panel-field">
+              Closed Hat Choke Mode
+              <select id="padHihatChokeMode">
+                <option value="noteOff">Note Off</option>
+                <option value="noteOnZero">Note On 0</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="panel-group">
+            <div class="panel-field">
+              Audio Monitor (drag the threshold line)
+              <canvas id="padWaveform" class="pad-visual" width="360" height="120"></canvas>
+              <div class="panel-muted">Threshold: <span id="padThresholdValue">0.12</span></div>
+            </div>
+            <div class="panel-field">
+              EQ Grid (drag HP/LP points)
+              <div id="eqGrid" class="eq-grid">
+                <canvas id="eqCanvas" class="pad-visual" width="360" height="120"></canvas>
+                <div class="eq-handle" data-role="hp">HP</div>
+                <div class="eq-handle" data-role="lp">LP</div>
+              </div>
+              <div class="panel-muted">HP: <span id="eqHpValue">-</span> | LP: <span id="eqLpValue">-</span></div>
+            </div>
+            <div class="panel-actions">
+              <button id="padLearn">Learn Threshold</button>
+              <button id="padRemove" class="danger">Remove Pad</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <footer class="bottombar">
+    <div class="controls">
+      <label class="control">
+        Audio Input
+        <select id="audioDevice"></select>
+      </label>
+      <label class="control">
+        Channels
+        <div class="inline">
+          <input id="channelOverride" type="number" min="1" max="16" placeholder="Auto">
+          <span class="hint">Detected: <span id="detectedChannels">-</span></span>
+        </div>
+      </label>
+      <label class="control">
+        MIDI Output
+        <select id="midiOutput"></select>
+      </label>
+      <label class="control">
+        MIDI Channel
+        <input id="midiChannel" type="number" min="1" max="16" value="1">
+      </label>
+      <label class="control">
+        Note Length (ms)
+        <input id="noteLength" type="number" min="10" max="2000" value="120">
+      </label>
+      <label class="control">
+        Mask Time (ms)
+        <input id="maskTime" type="number" min="10" max="2000" value="80">
+      </label>
+      <label class="control">
+        Theme
+        <select id="themeSelect">
+          <option value="dark">Dark</option>
+          <option value="neon">Neon</option>
+          <option value="ember">Ember</option>
+          <option value="ocean">Ocean</option>
+          <option value="forest">Forest</option>
+          <option value="dusk">Dusk</option>
+        </select>
+      </label>
+    </div>
+    <div class="actions">
+      <button id="savePreset">Save Preset</button>
+      <button id="loadPreset">Load Preset</button>
+    </div>
+  </footer>
+
+  <div id="addPadModal" class="modal">
+    <div class="modal-card">
+      <h3>Add Drum Piece</h3>
+      <label class="panel-field">
+        Name
+        <input id="newPadName" type="text" placeholder="New Piece">
+      </label>
+      <label class="panel-field">
+        Type
+        <select id="newPadType">
+          <option value="kick">Kick</option>
+          <option value="snare">Snare</option>
+          <option value="tom">Tom</option>
+          <option value="hihat">Hi-hat</option>
+          <option value="cymbal">Cymbal</option>
+          <option value="percussion">Percussion</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="panel-field">
+        Input Channel
+        <select id="newPadChannel"></select>
+      </label>
+      <label class="panel-field">
+        MIDI Note
+        <input id="newPadMidiNote" type="number" min="0" max="127">
+      </label>
+      <div class="panel-actions">
+        <button id="createPad" class="primary">Create</button>
+        <button id="cancelCreate">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <input id="presetFile" type="file" accept="application/json" style="display:none;">
+
+  <script>
+    // GhostNote: single-file audio-to-MIDI drum brain.
+    (() => {
+      "use strict";
+
+      const MAX_CHANNELS = 16;
+      const DEFAULT_NOTE_LENGTH = 120;
+      const DEFAULT_MASK = 80;
+      const HP_RANGE = { min: 20, max: 1000 };
+      const LP_RANGE = { min: 200, max: 20000 };
+      const Q_RANGE = { min: 0.2, max: 12 };
+
+      const TYPE_DEFAULT_NOTES = {
+        kick: 36,
+        snare: 38,
+        tom: 45,
+        hihat: 42,
+        cymbal: 49,
+        percussion: 39,
+        other: 35,
+      };
+
+      const DEFAULT_PADS = [
+        { name: "Kick", type: "kick", midiNote: 36, inputChannel: 1, x: 30, y: 68 },
+        { name: "Snare", type: "snare", midiNote: 38, inputChannel: 2, x: 52, y: 60 },
+        { name: "Hi-hat Closed", type: "hihat", midiNote: 42, inputChannel: 3, x: 18, y: 40, hihatRole: "closed" },
+        { name: "Hi-hat Open", type: "hihat", midiNote: 46, inputChannel: 4, x: 30, y: 30, hihatRole: "open" },
+        { name: "Tom 1", type: "tom", midiNote: 48, inputChannel: 5, x: 44, y: 38 },
+        { name: "Tom 2", type: "tom", midiNote: 45, inputChannel: 6, x: 60, y: 38 },
+        { name: "Tom 3", type: "tom", midiNote: 43, inputChannel: 7, x: 72, y: 56 },
+        { name: "Crash", type: "cymbal", midiNote: 49, inputChannel: 8, x: 70, y: 24 },
+        { name: "Ride", type: "cymbal", midiNote: 51, inputChannel: 9, x: 86, y: 34 },
+      ];
+
+      const State = {
+        theme: "dark",
+        audioDeviceId: "",
+        midiOutputId: "",
+        midiOutputName: "",
+        midiChannel: 1,
+        noteLength: DEFAULT_NOTE_LENGTH,
+        maskTime: DEFAULT_MASK,
+        channelOverride: null,
+        detectedChannels: 0,
+        pads: [],
+        selectedPadId: null,
+      };
+
+      const Runtime = {
+        audioContext: null,
+        stream: null,
+        splitter: null,
+        channelCount: 0,
+        padNodes: new Map(),
+        padElements: new Map(),
+        animationId: null,
+        midiAccess: null,
+        midiOutputs: [],
+        midiOutput: null,
+        warnings: new Map(),
+        dragging: null,
+        waveDrag: null,
+        eqDrag: null,
+      };
+
+      const Dom = {
+        toggleAudio: document.getElementById("toggleAudio"),
+        audioDevice: document.getElementById("audioDevice"),
+        midiOutput: document.getElementById("midiOutput"),
+        channelOverride: document.getElementById("channelOverride"),
+        detectedChannels: document.getElementById("detectedChannels"),
+        midiChannel: document.getElementById("midiChannel"),
+        noteLength: document.getElementById("noteLength"),
+        maskTime: document.getElementById("maskTime"),
+        themeSelect: document.getElementById("themeSelect"),
+        savePreset: document.getElementById("savePreset"),
+        loadPreset: document.getElementById("loadPreset"),
+        kitStage: document.getElementById("kitStage"),
+        status: document.getElementById("status"),
+        addPad: document.getElementById("addPad"),
+        presetFile: document.getElementById("presetFile"),
+        padPanelEmpty: document.getElementById("padPanelEmpty"),
+        padPanelContent: document.getElementById("padPanelContent"),
+        padName: document.getElementById("padName"),
+        padType: document.getElementById("padType"),
+        padChannel: document.getElementById("padChannel"),
+        padMidiNote: document.getElementById("padMidiNote"),
+        padSensitivity: document.getElementById("padSensitivity"),
+        padVelocityCurve: document.getElementById("padVelocityCurve"),
+        padMaskOverride: document.getElementById("padMaskOverride"),
+        padHihatRole: document.getElementById("padHihatRole"),
+        padHihatChoked: document.getElementById("padHihatChoked"),
+        padHihatChokeMode: document.getElementById("padHihatChokeMode"),
+        padLocked: document.getElementById("padLocked"),
+        padLearn: document.getElementById("padLearn"),
+        padRemove: document.getElementById("padRemove"),
+        padWaveform: document.getElementById("padWaveform"),
+        padThresholdValue: document.getElementById("padThresholdValue"),
+        eqGrid: document.getElementById("eqGrid"),
+        eqCanvas: document.getElementById("eqCanvas"),
+        eqHpValue: document.getElementById("eqHpValue"),
+        eqLpValue: document.getElementById("eqLpValue"),
+        addPadModal: document.getElementById("addPadModal"),
+        newPadName: document.getElementById("newPadName"),
+        newPadType: document.getElementById("newPadType"),
+        newPadChannel: document.getElementById("newPadChannel"),
+        newPadMidiNote: document.getElementById("newPadMidiNote"),
+        createPad: document.getElementById("createPad"),
+        cancelCreate: document.getElementById("cancelCreate"),
+      };
+
+      const EqHandles = {
+        hp: Dom.eqGrid.querySelector(".eq-handle[data-role='hp']"),
+        lp: Dom.eqGrid.querySelector(".eq-handle[data-role='lp']"),
+      };
+
+      const waveCtx = Dom.padWaveform.getContext("2d");
+      const eqCtx = Dom.eqCanvas.getContext("2d");
+
+      function init() {
+        State.pads = DEFAULT_PADS.map((pad, index) => createPad({
+          id: `pad-${index + 1}`,
+          name: pad.name,
+          type: pad.type,
+          inputChannel: pad.inputChannel,
+          midiNote: pad.midiNote,
+          x: pad.x,
+          y: pad.y,
+          threshold: 0.12,
+          sensitivity: 1.2,
+          velocityCurve: "linear",
+          maskOverride: null,
+          hihatRole: pad.hihatRole || "none",
+          hihatChokedByClosed: pad.hihatRole === "open",
+          hihatChokeMode: "noteOff",
+          filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
+          settingsLocked: false,
+          protected: true,
+        }));
+
+        populateChannelOptions(Dom.padChannel);
+        populateChannelOptions(Dom.newPadChannel);
+
+        Dom.themeSelect.value = State.theme;
+        Dom.midiChannel.value = State.midiChannel;
+        Dom.noteLength.value = State.noteLength;
+        Dom.maskTime.value = State.maskTime;
+
+        bindEvents();
+        renderPads();
+        refreshAudioDevices();
+        initMidi();
+        updateWarnings();
+        updateAudioToggle();
+      }
+
+      function bindEvents() {
+        Dom.themeSelect.addEventListener("change", (event) => setTheme(event.target.value));
+        Dom.toggleAudio.addEventListener("click", toggleAudio);
+        Dom.savePreset.addEventListener("click", savePreset);
+        Dom.loadPreset.addEventListener("click", () => Dom.presetFile.click());
+        Dom.presetFile.addEventListener("change", handlePresetLoad);
+        Dom.addPad.addEventListener("click", openAddPadModal);
+        Dom.cancelCreate.addEventListener("click", closeAddPadModal);
+        Dom.createPad.addEventListener("click", createNewPadFromModal);
+        Dom.newPadType.addEventListener("change", updateNewPadDefaults);
+
+        Dom.audioDevice.addEventListener("change", (event) => {
+          State.audioDeviceId = event.target.value;
+          if (Runtime.audioContext) {
+            restartAudio();
+          }
+        });
+
+        Dom.midiOutput.addEventListener("change", (event) => {
+          State.midiOutputId = event.target.value;
+          selectMidiOutputById(State.midiOutputId);
+        });
+
+        Dom.channelOverride.addEventListener("input", (event) => {
+          const value = parseInt(event.target.value, 10);
+          State.channelOverride = Number.isFinite(value) ? clamp(value, 1, MAX_CHANNELS) : null;
+          if (Runtime.audioContext) {
+            restartAudio();
+          }
+        });
+
+        Dom.midiChannel.addEventListener("input", (event) => {
+          const value = parseInt(event.target.value, 10);
+          State.midiChannel = clamp(value || 1, 1, 16);
+        });
+
+        Dom.noteLength.addEventListener("input", (event) => {
+          const value = parseInt(event.target.value, 10);
+          State.noteLength = clamp(value || DEFAULT_NOTE_LENGTH, 10, 2000);
+        });
+
+        Dom.maskTime.addEventListener("input", (event) => {
+          const value = parseInt(event.target.value, 10);
+          State.maskTime = clamp(value || DEFAULT_MASK, 10, 2000);
+        });
+
+        Dom.kitStage.addEventListener("pointerdown", handlePadPointerDown);
+        window.addEventListener("pointermove", handlePadPointerMove);
+        window.addEventListener("pointerup", handlePadPointerUp);
+        window.addEventListener("resize", () => {
+          updatePadPositions();
+          resolveAllOverlaps();
+        });
+
+        Dom.padName.addEventListener("input", () => updateSelectedPad("name", Dom.padName.value));
+        Dom.padType.addEventListener("change", () => updateSelectedPad("type", Dom.padType.value, true));
+        Dom.padChannel.addEventListener("change", () => updateSelectedPad("inputChannel", parseInt(Dom.padChannel.value, 10), true));
+        Dom.padMidiNote.addEventListener("input", () => updateSelectedPad("midiNote", parseInt(Dom.padMidiNote.value, 10) || 0, false));
+        Dom.padSensitivity.addEventListener("input", () => updateSelectedPad("sensitivity", parseFloat(Dom.padSensitivity.value) || 1));
+        Dom.padVelocityCurve.addEventListener("change", () => updateSelectedPad("velocityCurve", Dom.padVelocityCurve.value));
+        Dom.padMaskOverride.addEventListener("input", () => {
+          const value = parseInt(Dom.padMaskOverride.value, 10);
+          updateSelectedPad("maskOverride", Number.isFinite(value) ? value : null);
+        });
+        Dom.padHihatRole.addEventListener("change", () => updateSelectedPad("hihatRole", Dom.padHihatRole.value));
+        Dom.padHihatChoked.addEventListener("change", () => updateSelectedPad("hihatChokedByClosed", Dom.padHihatChoked.value === "yes"));
+        Dom.padHihatChokeMode.addEventListener("change", () => updateSelectedPad("hihatChokeMode", Dom.padHihatChokeMode.value));
+        Dom.padLocked.addEventListener("change", () => togglePadLock(Dom.padLocked.checked));
+        Dom.padLearn.addEventListener("click", () => learnThreshold(getSelectedPad()));
+        Dom.padRemove.addEventListener("click", removeSelectedPad);
+
+        Dom.padWaveform.addEventListener("pointerdown", handleWaveformPointerDown);
+        Dom.eqGrid.addEventListener("pointerdown", handleEqPointerDown);
+      }
+
+      function toggleAudio() {
+        if (Runtime.audioContext) {
+          stopAudio();
+        } else {
+          startAudio();
+        }
+      }
+
+      function updateAudioToggle() {
+        if (Runtime.audioContext) {
+          Dom.toggleAudio.textContent = "Audio On";
+          Dom.toggleAudio.classList.remove("off");
+          Dom.toggleAudio.classList.add("on");
+        } else {
+          Dom.toggleAudio.textContent = "Audio Off";
+          Dom.toggleAudio.classList.remove("on");
+          Dom.toggleAudio.classList.add("off");
+        }
+      }
+
+      function createPad(data) {
+        const filter = normalizeFilter(data.filter);
+        return {
+          id: data.id || `pad-${crypto.randomUUID()}`,
+          name: data.name,
+          type: data.type,
+          inputChannel: data.inputChannel,
+          midiNote: data.midiNote,
+          threshold: data.threshold ?? 0.12,
+          sensitivity: data.sensitivity ?? 1.0,
+          velocityCurve: data.velocityCurve || "linear",
+          maskOverride: data.maskOverride ?? null,
+          hihatRole: data.hihatRole || "none",
+          hihatChokedByClosed: data.hihatChokedByClosed ?? false,
+          hihatChokeMode: data.hihatChokeMode || "noteOff",
+          filter,
+          x: data.x ?? 50,
+          y: data.y ?? 50,
+          settingsLocked: data.settingsLocked ?? false,
+          protected: data.protected ?? false,
+        };
+      }
+
+      function normalizeFilter(filter = {}) {
+        return {
+          hp: clamp(filter.hp ?? 30, HP_RANGE.min, HP_RANGE.max),
+          lp: clamp(filter.lp ?? 12000, LP_RANGE.min, LP_RANGE.max),
+          hpQ: clamp(filter.hpQ ?? 0.7, Q_RANGE.min, Q_RANGE.max),
+          lpQ: clamp(filter.lpQ ?? 0.7, Q_RANGE.min, Q_RANGE.max),
+        };
+      }
+
+      function populateChannelOptions(select) {
+        select.innerHTML = "";
+        for (let i = 1; i <= MAX_CHANNELS; i += 1) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = `${i}`;
+          select.appendChild(option);
+        }
+      }
+
+      function renderPads() {
+        Dom.kitStage.innerHTML = "";
+        Runtime.padElements.clear();
+        State.pads.forEach((pad, index) => {
+          const el = document.createElement("div");
+          el.className = "pad";
+          if (pad.id === State.selectedPadId) el.classList.add("selected");
+          el.dataset.id = pad.id;
+          el.dataset.type = pad.type;
+          el.style.animationDelay = `${index * 60}ms`;
+          el.innerHTML = `
+            <div class="pad-header">
+              <span>${escapeHtml(pad.name)}</span>
+            </div>
+            <div class="pad-meta">CH ${pad.inputChannel} | MIDI ${pad.midiNote}</div>
+            <div class="pad-meter"><span></span></div>
+          `;
+          Dom.kitStage.appendChild(el);
+          Runtime.padElements.set(pad.id, el);
+          updatePadPosition(pad);
+        });
+        requestAnimationFrame(resolveAllOverlaps);
+      }
+
+      function updatePadPosition(pad) {
+        const el = Runtime.padElements.get(pad.id);
+        if (!el) return;
+        el.style.left = `${pad.x}%`;
+        el.style.top = `${pad.y}%`;
+      }
+
+      function updatePadPositions() {
+        State.pads.forEach(updatePadPosition);
+      }
+
+      function handlePadPointerDown(event) {
+        const padEl = event.target.closest(".pad");
+        if (!padEl) return;
+        const padId = padEl.dataset.id;
+        selectPad(padId);
+        Runtime.dragging = { id: padId, pointerId: event.pointerId };
+        padEl.classList.add("dragging");
+        padEl.setPointerCapture(event.pointerId);
+      }
+
+      function handlePadPointerMove(event) {
+        if (!Runtime.dragging) return;
+        const pad = getPad(Runtime.dragging.id);
+        const padEl = Runtime.padElements.get(pad.id);
+        const rect = Dom.kitStage.getBoundingClientRect();
+        if (!padEl) return;
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+        const limits = getPadBounds(pad, padEl, rect);
+        pad.x = clamp(x, limits.minX, limits.maxX);
+        pad.y = clamp(y, limits.minY, limits.maxY);
+        updatePadPosition(pad);
+      }
+
+      function handlePadPointerUp() {
+        if (!Runtime.dragging) return;
+        const pad = getPad(Runtime.dragging.id);
+        const padEl = Runtime.padElements.get(Runtime.dragging.id);
+        if (padEl) padEl.classList.remove("dragging");
+        Runtime.dragging = null;
+        resolveAllOverlaps();
+      }
+
+      function selectPad(padId) {
+        State.selectedPadId = padId;
+        State.pads.forEach((pad) => {
+          const el = Runtime.padElements.get(pad.id);
+          if (el) el.classList.toggle("selected", pad.id === padId);
+        });
+        const pad = getSelectedPad();
+        if (!pad) return;
+        Dom.padPanelEmpty.style.display = "none";
+        Dom.padPanelContent.style.display = "block";
+        Dom.padName.value = pad.name;
+        Dom.padType.value = pad.type;
+        Dom.padChannel.value = pad.inputChannel;
+        Dom.padMidiNote.value = pad.midiNote;
+        Dom.padSensitivity.value = pad.sensitivity;
+        Dom.padVelocityCurve.value = pad.velocityCurve;
+        Dom.padMaskOverride.value = pad.maskOverride ?? "";
+        Dom.padHihatRole.value = pad.hihatRole;
+        Dom.padHihatChoked.value = pad.hihatChokedByClosed ? "yes" : "no";
+        Dom.padHihatChokeMode.value = pad.hihatChokeMode;
+        Dom.padLocked.checked = pad.settingsLocked;
+        Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
+        Dom.padRemove.disabled = pad.protected;
+        updateEqHandles(pad);
+        applyPadLockState(pad);
+      }
+
+      function updateSelectedPad(key, value, requiresAudioUpdate = false) {
+        const pad = getSelectedPad();
+        if (!pad) return;
+        if (pad.settingsLocked) return;
+        pad[key] = value;
+        if (key === "type") {
+          const el = Runtime.padElements.get(pad.id);
+          if (el) el.dataset.type = value;
+        }
+        updatePadElement(pad);
+        if (requiresAudioUpdate) {
+          rebuildPadAudio(pad);
+        }
+        updateWarnings();
+      }
+
+      function togglePadLock(locked) {
+        const pad = getSelectedPad();
+        if (!pad) return;
+        pad.settingsLocked = locked;
+        applyPadLockState(pad);
+      }
+
+      function applyPadLockState(pad) {
+        const disabled = pad.settingsLocked;
+        [
+          Dom.padName,
+          Dom.padType,
+          Dom.padChannel,
+          Dom.padMidiNote,
+          Dom.padSensitivity,
+          Dom.padVelocityCurve,
+          Dom.padMaskOverride,
+          Dom.padHihatRole,
+          Dom.padHihatChoked,
+          Dom.padHihatChokeMode,
+          Dom.padLearn,
+        ].forEach((control) => {
+          control.disabled = disabled;
+        });
+        Dom.padRemove.disabled = pad.protected || disabled;
+      }
+
+      function updatePadElement(pad) {
+        const el = Runtime.padElements.get(pad.id);
+        if (!el) return;
+        const header = el.querySelector(".pad-header span");
+        const meta = el.querySelector(".pad-meta");
+        if (header) header.textContent = pad.name;
+        if (meta) meta.textContent = `CH ${pad.inputChannel} | MIDI ${pad.midiNote}`;
+      }
+
+      function getPad(id) {
+        return State.pads.find((pad) => pad.id === id);
+      }
+
+      function getSelectedPad() {
+        return getPad(State.selectedPadId);
+      }
+
+      function removeSelectedPad() {
+        const pad = getSelectedPad();
+        if (!pad || pad.protected || pad.settingsLocked) return;
+        State.pads = State.pads.filter((item) => item.id !== pad.id);
+        removePadAudio(pad.id);
+        renderPads();
+        State.selectedPadId = null;
+        Dom.padPanelEmpty.style.display = "block";
+        Dom.padPanelContent.style.display = "none";
+      }
+
+      function openAddPadModal() {
+        Dom.addPadModal.classList.add("active");
+        Dom.newPadName.value = "";
+        Dom.newPadType.value = "tom";
+        populateChannelOptions(Dom.newPadChannel);
+        Dom.newPadChannel.value = getNextAvailableChannel();
+        updateNewPadDefaults();
+      }
+
+      function closeAddPadModal() {
+        Dom.addPadModal.classList.remove("active");
+      }
+
+      function updateNewPadDefaults() {
+        const type = Dom.newPadType.value;
+        Dom.newPadMidiNote.value = TYPE_DEFAULT_NOTES[type] || 35;
+      }
+
+      function createNewPadFromModal() {
+        const name = Dom.newPadName.value.trim() || "New Piece";
+        const type = Dom.newPadType.value;
+        const inputChannel = parseInt(Dom.newPadChannel.value, 10) || 1;
+        const midiNote = parseInt(Dom.newPadMidiNote.value, 10) || TYPE_DEFAULT_NOTES[type] || 35;
+        const pad = createPad({
+          name,
+          type,
+          inputChannel,
+          midiNote,
+          threshold: 0.12,
+          sensitivity: 1.1,
+          velocityCurve: "linear",
+          filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
+          x: 50 + (Math.random() * 10 - 5),
+          y: 50 + (Math.random() * 10 - 5),
+        });
+        State.pads.push(pad);
+        renderPads();
+        if (Runtime.audioContext) {
+          buildPadAudio(pad);
+        }
+        closeAddPadModal();
+        updateWarnings();
+      }
+
+      function getNextAvailableChannel() {
+        const used = new Set(State.pads.map((pad) => pad.inputChannel));
+        for (let i = 1; i <= MAX_CHANNELS; i += 1) {
+          if (!used.has(i)) return i;
+        }
+        return 1;
+      }
+
+      async function refreshAudioDevices() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const inputs = devices.filter((device) => device.kind === "audioinput");
+        Dom.audioDevice.innerHTML = "";
+        inputs.forEach((device, index) => {
+          const option = document.createElement("option");
+          option.value = device.deviceId;
+          option.textContent = device.label || `Input ${index + 1}`;
+          Dom.audioDevice.appendChild(option);
+        });
+        if (inputs.length === 0) {
+          Dom.audioDevice.innerHTML = "<option value=\"\">No inputs</option>";
+        }
+        if (!State.audioDeviceId && inputs[0]) {
+          State.audioDeviceId = inputs[0].deviceId;
+        }
+        Dom.audioDevice.value = State.audioDeviceId;
+      }
+
+      async function startAudio() {
+        stopAudio();
+        try {
+          const constraints = {
+            audio: {
+              deviceId: State.audioDeviceId ? { exact: State.audioDeviceId } : undefined,
+              channelCount: { ideal: MAX_CHANNELS },
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false,
+            },
+          };
+          Runtime.stream = await navigator.mediaDevices.getUserMedia(constraints);
+          Runtime.audioContext = new AudioContext();
+          const source = Runtime.audioContext.createMediaStreamSource(Runtime.stream);
+          const settings = Runtime.stream.getAudioTracks()[0].getSettings();
+          State.detectedChannels = settings.channelCount || MAX_CHANNELS;
+          Dom.detectedChannels.textContent = State.detectedChannels;
+          const desiredChannels = clamp(State.channelOverride || State.detectedChannels || MAX_CHANNELS, 1, MAX_CHANNELS);
+          Runtime.channelCount = desiredChannels;
+          Runtime.splitter = Runtime.audioContext.createChannelSplitter(desiredChannels);
+          source.connect(Runtime.splitter);
+          State.pads.forEach((pad) => buildPadAudio(pad));
+          startVisuals();
+          clearWarning("audio");
+          updateWarnings();
+          updateAudioToggle();
+          await refreshAudioDevices();
+        } catch (error) {
+          setWarning("audio", "Audio permission denied or unavailable.");
+          updateWarnings();
+          updateAudioToggle();
+        }
+      }
+
+      function stopAudio() {
+        if (Runtime.animationId) {
+          cancelAnimationFrame(Runtime.animationId);
+          Runtime.animationId = null;
+        }
+        Runtime.padNodes.forEach((node) => {
+          node.processor.disconnect();
+          node.analyser.disconnect();
+          node.lowpass.disconnect();
+          node.highpass.disconnect();
+          node.mute.disconnect();
+        });
+        Runtime.padNodes.clear();
+        if (Runtime.splitter) {
+          Runtime.splitter.disconnect();
+          Runtime.splitter = null;
+        }
+        if (Runtime.audioContext) {
+          Runtime.audioContext.close();
+          Runtime.audioContext = null;
+        }
+        if (Runtime.stream) {
+          Runtime.stream.getTracks().forEach((track) => track.stop());
+          Runtime.stream = null;
+        }
+        updateAudioToggle();
+      }
+
+      function restartAudio() {
+        stopAudio();
+        startAudio();
+      }
+
+      function buildPadAudio(pad) {
+        if (!Runtime.audioContext || !Runtime.splitter) return;
+        const ctx = Runtime.audioContext;
+        const inputIndex = clamp(pad.inputChannel - 1, 0, Runtime.channelCount - 1);
+
+        const highpass = ctx.createBiquadFilter();
+        highpass.type = "highpass";
+        highpass.frequency.value = pad.filter.hp;
+        highpass.Q.value = pad.filter.hpQ;
+
+        const lowpass = ctx.createBiquadFilter();
+        lowpass.type = "lowpass";
+        lowpass.frequency.value = pad.filter.lp;
+        lowpass.Q.value = pad.filter.lpQ;
+
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+
+        // ScriptProcessorNode keeps everything in a single file while remaining widely supported.
+        const processor = ctx.createScriptProcessor(256, 1, 1);
+        const mute = ctx.createGain();
+        mute.gain.value = 0;
+
+        Runtime.splitter.connect(highpass, inputIndex);
+        highpass.connect(lowpass);
+        lowpass.connect(analyser);
+        analyser.connect(processor);
+        processor.connect(mute);
+        mute.connect(ctx.destination);
+
+        const runtime = {
+          highpass,
+          lowpass,
+          analyser,
+          processor,
+          mute,
+          inputIndex,
+          lastTriggerTime: 0,
+          lastPeak: 0,
+          meter: 0,
+          noteOffTimer: null,
+          activeNote: null,
+          learn: { active: false, max: 0, endTime: 0 },
+          waveData: new Uint8Array(analyser.fftSize),
+        };
+
+        processor.onaudioprocess = (event) => {
+          const input = event.inputBuffer.getChannelData(0);
+          let peak = 0;
+          for (let i = 0; i < input.length; i += 1) {
+            const abs = Math.abs(input[i]);
+            if (abs > peak) peak = abs;
+          }
+          runtime.lastPeak = peak;
+          runtime.meter = Math.max(peak, runtime.meter * 0.92);
+
+          const nowMs = Runtime.audioContext.currentTime * 1000;
+          if (runtime.learn.active) {
+            runtime.learn.max = Math.max(runtime.learn.max, peak);
+            if (nowMs > runtime.learn.endTime) {
+              pad.threshold = clamp(runtime.learn.max * 0.6, 0.02, 1);
+              runtime.learn.active = false;
+              if (State.selectedPadId === pad.id) {
+                Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
+              }
+            }
+          }
+
+          const mask = Number.isFinite(pad.maskOverride) ? pad.maskOverride : State.maskTime;
+          if (peak >= pad.threshold && nowMs - runtime.lastTriggerTime > mask) {
+            runtime.lastTriggerTime = nowMs;
+            triggerPad(pad, peak);
+          }
+        };
+
+        Runtime.padNodes.set(pad.id, runtime);
+      }
+
+      function rebuildPadAudio(pad) {
+        if (!Runtime.audioContext) return;
+        removePadAudio(pad.id);
+        buildPadAudio(pad);
+      }
+
+      function removePadAudio(padId) {
+        const runtime = Runtime.padNodes.get(padId);
+        if (!runtime) return;
+        runtime.processor.disconnect();
+        runtime.analyser.disconnect();
+        runtime.lowpass.disconnect();
+        runtime.highpass.disconnect();
+        runtime.mute.disconnect();
+        Runtime.padNodes.delete(padId);
+      }
+
+      function updateFilterNodes(pad) {
+        const runtime = Runtime.padNodes.get(pad.id);
+        if (!runtime || !Runtime.audioContext) return;
+        const ctx = Runtime.audioContext;
+        runtime.highpass.frequency.setTargetAtTime(pad.filter.hp, ctx.currentTime, 0.01);
+        runtime.highpass.Q.value = pad.filter.hpQ;
+        runtime.lowpass.frequency.setTargetAtTime(pad.filter.lp, ctx.currentTime, 0.01);
+        runtime.lowpass.Q.value = pad.filter.lpQ;
+      }
+
+      function triggerPad(pad, peak) {
+        const velocity = calculateVelocity(peak, pad.sensitivity, pad.velocityCurve);
+        const channel = State.midiChannel;
+        if (pad.hihatRole === "closed") {
+          chokeOpenHats(pad);
+        }
+        pulsePad(pad.id);
+        sendNote(pad, velocity, channel);
+      }
+
+      function pulsePad(padId) {
+        const el = Runtime.padElements.get(padId);
+        if (!el) return;
+        el.classList.remove("pulse");
+        void el.offsetWidth;
+        el.classList.add("pulse");
+      }
+
+      function calculateVelocity(peak, sensitivity, curve) {
+        let value = clamp(peak * sensitivity, 0, 1);
+        if (curve === "soft") {
+          value = Math.sqrt(value);
+        } else if (curve === "hard") {
+          value = value * value;
+        }
+        return clamp(Math.round(value * 127), 1, 127);
+      }
+
+      function sendNote(pad, velocity, channel) {
+        const runtime = Runtime.padNodes.get(pad.id);
+        if (!runtime) return;
+        if (runtime.noteOffTimer) {
+          clearTimeout(runtime.noteOffTimer);
+        }
+        sendMidiNoteOn(pad.midiNote, velocity, channel);
+        runtime.activeNote = pad.midiNote;
+        runtime.noteOffTimer = setTimeout(() => {
+          sendMidiNoteOff(pad.midiNote, channel);
+          runtime.activeNote = null;
+        }, State.noteLength);
+      }
+
+      function chokeOpenHats(triggerPad) {
+        State.pads.forEach((pad) => {
+          if (pad.hihatRole !== "open" || !pad.hihatChokedByClosed) return;
+          const runtime = Runtime.padNodes.get(pad.id);
+          if (!runtime || !runtime.activeNote) return;
+          if (pad.hihatChokeMode === "noteOnZero" || triggerPad.hihatChokeMode === "noteOnZero") {
+            sendMidiNoteOn(runtime.activeNote, 0, State.midiChannel);
+          } else {
+            sendMidiNoteOff(runtime.activeNote, State.midiChannel);
+          }
+          if (runtime.noteOffTimer) clearTimeout(runtime.noteOffTimer);
+          runtime.activeNote = null;
+        });
+      }
+
+      function learnThreshold(pad) {
+        if (!pad || pad.settingsLocked) return;
+        const runtime = Runtime.padNodes.get(pad.id);
+        if (!runtime) return;
+        runtime.learn.active = true;
+        runtime.learn.max = 0;
+        runtime.learn.endTime = Runtime.audioContext.currentTime * 1000 + 1500;
+      }
+
+      function startVisuals() {
+        if (Runtime.animationId) cancelAnimationFrame(Runtime.animationId);
+        const draw = () => {
+          Runtime.animationId = requestAnimationFrame(draw);
+          State.pads.forEach((pad) => {
+            const runtime = Runtime.padNodes.get(pad.id);
+            const el = Runtime.padElements.get(pad.id);
+            if (!runtime || !el) return;
+            const meter = el.querySelector(".pad-meter span");
+            if (meter) {
+              meter.style.transform = `scaleX(${clamp(runtime.meter * 1.4, 0, 1)})`;
+            }
+          });
+
+          const selected = getSelectedPad();
+          if (!selected) {
+            waveCtx.clearRect(0, 0, Dom.padWaveform.width, Dom.padWaveform.height);
+            eqCtx.clearRect(0, 0, Dom.eqCanvas.width, Dom.eqCanvas.height);
+            return;
+          }
+          const runtime = Runtime.padNodes.get(selected.id);
+          if (!runtime) return;
+          drawWaveform(selected, runtime);
+          drawEqGrid(selected);
+        };
+        draw();
+      }
+
+      function drawWaveform(pad, runtime) {
+        const width = Dom.padWaveform.width;
+        const height = Dom.padWaveform.height;
+        runtime.analyser.getByteTimeDomainData(runtime.waveData);
+        waveCtx.clearRect(0, 0, width, height);
+        waveCtx.fillStyle = "rgba(0,0,0,0.2)";
+        waveCtx.fillRect(0, 0, width, height);
+        waveCtx.lineWidth = 2;
+        waveCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--wave");
+        waveCtx.beginPath();
+        for (let i = 0; i < runtime.waveData.length; i += 1) {
+          const value = runtime.waveData[i] / 128.0;
+          const x = (i / runtime.waveData.length) * width;
+          const y = (value * height) / 2;
+          if (i === 0) waveCtx.moveTo(x, y);
+          else waveCtx.lineTo(x, y);
+        }
+        waveCtx.stroke();
+
+        const center = height / 2;
+        const thresholdOffset = pad.threshold * center;
+        waveCtx.strokeStyle = "rgba(255,255,255,0.4)";
+        waveCtx.beginPath();
+        waveCtx.moveTo(0, center - thresholdOffset);
+        waveCtx.lineTo(width, center - thresholdOffset);
+        waveCtx.moveTo(0, center + thresholdOffset);
+        waveCtx.lineTo(width, center + thresholdOffset);
+        waveCtx.stroke();
+
+        const peakHeight = clamp(runtime.lastPeak, 0, 1) * center;
+        waveCtx.fillStyle = "rgba(39, 240, 197, 0.55)";
+        waveCtx.fillRect(width - 6, center - peakHeight, 4, peakHeight * 2);
+      }
+
+      function drawEqGrid(pad) {
+        const width = Dom.eqCanvas.width;
+        const height = Dom.eqCanvas.height;
+        eqCtx.clearRect(0, 0, width, height);
+        eqCtx.fillStyle = "rgba(0,0,0,0.2)";
+        eqCtx.fillRect(0, 0, width, height);
+        eqCtx.strokeStyle = "rgba(255,255,255,0.12)";
+        eqCtx.lineWidth = 1;
+        for (let i = 1; i < 4; i += 1) {
+          const x = (i / 4) * width;
+          const y = (i / 4) * height;
+          eqCtx.beginPath();
+          eqCtx.moveTo(x, 0);
+          eqCtx.lineTo(x, height);
+          eqCtx.stroke();
+          eqCtx.beginPath();
+          eqCtx.moveTo(0, y);
+          eqCtx.lineTo(width, y);
+          eqCtx.stroke();
+        }
+        updateEqHandles(pad);
+      }
+
+      function updateEqHandles(pad) {
+        const gridRect = Dom.eqGrid.getBoundingClientRect();
+        if (!gridRect.width || !gridRect.height) return;
+        const hpX = mapToRange(pad.filter.hp, HP_RANGE.min, HP_RANGE.max, 0, gridRect.width);
+        const lpX = mapToRange(pad.filter.lp, LP_RANGE.min, LP_RANGE.max, 0, gridRect.width);
+        const hpY = mapToRange(pad.filter.hpQ, Q_RANGE.min, Q_RANGE.max, gridRect.height, 0);
+        const lpY = mapToRange(pad.filter.lpQ, Q_RANGE.min, Q_RANGE.max, gridRect.height, 0);
+        EqHandles.hp.style.left = `${hpX}px`;
+        EqHandles.hp.style.top = `${hpY}px`;
+        EqHandles.lp.style.left = `${lpX}px`;
+        EqHandles.lp.style.top = `${lpY}px`;
+        Dom.eqHpValue.textContent = `${Math.round(pad.filter.hp)} Hz / Q ${pad.filter.hpQ.toFixed(2)}`;
+        Dom.eqLpValue.textContent = `${Math.round(pad.filter.lp)} Hz / Q ${pad.filter.lpQ.toFixed(2)}`;
+      }
+
+      function handleWaveformPointerDown(event) {
+        const pad = getSelectedPad();
+        if (!pad || pad.settingsLocked) return;
+        Runtime.waveDrag = { active: true };
+        updateThresholdFromPointer(event);
+        window.addEventListener("pointermove", handleWaveformPointerMove);
+        window.addEventListener("pointerup", handleWaveformPointerUp, { once: true });
+      }
+
+      function handleWaveformPointerMove(event) {
+        if (!Runtime.waveDrag) return;
+        updateThresholdFromPointer(event);
+      }
+
+      function handleWaveformPointerUp() {
+        Runtime.waveDrag = null;
+        window.removeEventListener("pointermove", handleWaveformPointerMove);
+      }
+
+      function updateThresholdFromPointer(event) {
+        const pad = getSelectedPad();
+        if (!pad) return;
+        const rect = Dom.padWaveform.getBoundingClientRect();
+        const y = clamp(event.clientY - rect.top, 0, rect.height);
+        const center = rect.height / 2;
+        const distance = Math.abs(y - center);
+        pad.threshold = clamp(distance / center, 0.02, 1);
+        Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
+      }
+
+      function handleEqPointerDown(event) {
+        const pad = getSelectedPad();
+        if (!pad || pad.settingsLocked) return;
+        const handle = event.target.closest(".eq-handle");
+        if (!handle) return;
+        Runtime.eqDrag = { role: handle.dataset.role };
+        updateEqFromPointer(event);
+        window.addEventListener("pointermove", handleEqPointerMove);
+        window.addEventListener("pointerup", handleEqPointerUp, { once: true });
+      }
+
+      function handleEqPointerMove(event) {
+        if (!Runtime.eqDrag) return;
+        updateEqFromPointer(event);
+      }
+
+      function handleEqPointerUp() {
+        Runtime.eqDrag = null;
+        window.removeEventListener("pointermove", handleEqPointerMove);
+      }
+
+      function updateEqFromPointer(event) {
+        const pad = getSelectedPad();
+        if (!pad || !Runtime.eqDrag) return;
+        const rect = Dom.eqGrid.getBoundingClientRect();
+        const x = clamp(event.clientX - rect.left, 0, rect.width);
+        const y = clamp(event.clientY - rect.top, 0, rect.height);
+        const q = clamp(mapToRange(y, rect.height, 0, Q_RANGE.min, Q_RANGE.max), Q_RANGE.min, Q_RANGE.max);
+        if (Runtime.eqDrag.role === "hp") {
+          pad.filter.hp = clamp(mapToRange(x, 0, rect.width, HP_RANGE.min, HP_RANGE.max), HP_RANGE.min, HP_RANGE.max);
+          pad.filter.hpQ = q;
+        } else {
+          pad.filter.lp = clamp(mapToRange(x, 0, rect.width, LP_RANGE.min, LP_RANGE.max), LP_RANGE.min, LP_RANGE.max);
+          pad.filter.lpQ = q;
+        }
+        updateFilterNodes(pad);
+        updateEqHandles(pad);
+      }
+
+      async function initMidi() {
+        if (!navigator.requestMIDIAccess) {
+          setWarning("midi", "Web MIDI is not available in this browser.");
+          updateWarnings();
+          return;
+        }
+        try {
+          Runtime.midiAccess = await navigator.requestMIDIAccess();
+          Runtime.midiOutputs = Array.from(Runtime.midiAccess.outputs.values());
+          Dom.midiOutput.innerHTML = "";
+          Runtime.midiOutputs.forEach((output) => {
+            const option = document.createElement("option");
+            option.value = output.id;
+            option.textContent = output.name || output.id;
+            Dom.midiOutput.appendChild(option);
+          });
+          if (Runtime.midiOutputs.length === 0) {
+            Dom.midiOutput.innerHTML = "<option value=\"\">No outputs</option>";
+            setWarning("midiOutputs", "No MIDI outputs detected.");
+          } else {
+            clearWarning("midiOutputs");
+          }
+          selectPreferredMidiOutput();
+          updateWarnings();
+        } catch (error) {
+          setWarning("midi", "MIDI permission denied or unavailable.");
+          updateWarnings();
+        }
+      }
+
+      function selectPreferredMidiOutput() {
+        const preferred = Runtime.midiOutputs.find((output) => /logic pro virtual in/i.test(output.name || ""));
+        const target = preferred || Runtime.midiOutputs[0];
+        if (target) {
+          State.midiOutputId = target.id;
+          State.midiOutputName = target.name || "";
+          Dom.midiOutput.value = target.id;
+          selectMidiOutputById(target.id);
+        }
+      }
+
+      function selectMidiOutputById(id) {
+        Runtime.midiOutput = Runtime.midiOutputs.find((output) => output.id === id) || null;
+        if (!Runtime.midiOutput && Runtime.midiOutputs.length) {
+          Runtime.midiOutput = Runtime.midiOutputs[0];
+        }
+        if (!Runtime.midiOutput) {
+          setWarning("midiOutputs", "No MIDI outputs detected.");
+        } else {
+          clearWarning("midiOutputs");
+        }
+        updateWarnings();
+      }
+
+      function sendMidiNoteOn(note, velocity, channel) {
+        if (!Runtime.midiOutput) return;
+        const status = 0x90 + clamp(channel - 1, 0, 15);
+        Runtime.midiOutput.send([status, note, velocity]);
+      }
+
+      function sendMidiNoteOff(note, channel) {
+        if (!Runtime.midiOutput) return;
+        const status = 0x80 + clamp(channel - 1, 0, 15);
+        Runtime.midiOutput.send([status, note, 0]);
+      }
+
+      function savePreset() {
+        const presetName = prompt("Preset name?", "GhostNote Preset");
+        if (!presetName) return;
+        const preset = {
+          presetName,
+          theme: State.theme,
+          selectedAudioDeviceId: State.audioDeviceId,
+          selectedMidiOutputId: State.midiOutputId,
+          selectedMidiOutputName: State.midiOutputName,
+          global: {
+            midiChannel: State.midiChannel,
+            noteLength: State.noteLength,
+            maskTime: State.maskTime,
+            channelOverride: State.channelOverride,
+          },
+          drumPieces: State.pads.map((pad) => ({
+            id: pad.id,
+            name: pad.name,
+            type: pad.type,
+            inputChannel: pad.inputChannel,
+            midiNote: pad.midiNote,
+            threshold: pad.threshold,
+            sensitivity: pad.sensitivity,
+            velocityCurve: pad.velocityCurve,
+            maskOverride: pad.maskOverride,
+            hihatRole: pad.hihatRole,
+            hihatChokedByClosed: pad.hihatChokedByClosed,
+            hihatChokeMode: pad.hihatChokeMode,
+            filter: pad.filter,
+            x: pad.x,
+            y: pad.y,
+            settingsLocked: pad.settingsLocked,
+            protected: pad.protected,
+          })),
+        };
+
+        const blob = new Blob([JSON.stringify(preset, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${presetName.replace(/\s+/g, "-")}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        flashButton(Dom.savePreset);
+      }
+
+      function flashButton(button) {
+        button.classList.add("flash");
+        setTimeout(() => button.classList.remove("flash"), 300);
+      }
+
+      function handlePresetLoad(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          try {
+            const preset = JSON.parse(loadEvent.target.result);
+            applyPreset(preset);
+          } catch (error) {
+            setWarning("preset", "Preset file could not be read.");
+            updateWarnings();
+          }
+        };
+        reader.readAsText(file);
+        event.target.value = "";
+      }
+
+      function applyPreset(preset) {
+        State.theme = preset.theme || "dark";
+        setTheme(State.theme);
+        State.audioDeviceId = preset.selectedAudioDeviceId || State.audioDeviceId;
+        State.midiOutputId = preset.selectedMidiOutputId || State.midiOutputId;
+        State.midiOutputName = preset.selectedMidiOutputName || "";
+        State.midiChannel = preset.global?.midiChannel || 1;
+        State.noteLength = preset.global?.noteLength || DEFAULT_NOTE_LENGTH;
+        State.maskTime = preset.global?.maskTime || DEFAULT_MASK;
+        State.channelOverride = preset.global?.channelOverride ?? null;
+
+        Dom.midiChannel.value = State.midiChannel;
+        Dom.noteLength.value = State.noteLength;
+        Dom.maskTime.value = State.maskTime;
+        Dom.channelOverride.value = State.channelOverride ?? "";
+
+        State.pads = (preset.drumPieces || []).map((pad) => createPad(pad));
+        if (State.pads.length === 0) {
+          State.pads = DEFAULT_PADS.map((pad, index) => createPad({
+            id: `pad-${index + 1}`,
+            name: pad.name,
+            type: pad.type,
+            inputChannel: pad.inputChannel,
+            midiNote: pad.midiNote,
+            x: pad.x,
+            y: pad.y,
+            threshold: 0.12,
+            sensitivity: 1.2,
+            velocityCurve: "linear",
+            maskOverride: null,
+            hihatRole: pad.hihatRole || "none",
+            hihatChokedByClosed: pad.hihatRole === "open",
+            hihatChokeMode: "noteOff",
+            filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
+            settingsLocked: false,
+            protected: true,
+          }));
+        }
+        renderPads();
+        State.selectedPadId = null;
+        Dom.padPanelEmpty.style.display = "block";
+        Dom.padPanelContent.style.display = "none";
+        selectMidiOutputById(State.midiOutputId);
+        Dom.audioDevice.value = State.audioDeviceId;
+        if (Runtime.audioContext) restartAudio();
+      }
+
+      function setTheme(theme) {
+        State.theme = theme;
+        document.body.classList.remove(
+          "theme-dark",
+          "theme-neon",
+          "theme-ember",
+          "theme-ocean",
+          "theme-forest",
+          "theme-dusk"
+        );
+        document.body.classList.add(`theme-${theme}`);
+      }
+
+      function setWarning(key, message) {
+        Runtime.warnings.set(key, message);
+      }
+
+      function clearWarning(key) {
+        Runtime.warnings.delete(key);
+      }
+
+      function updateWarnings() {
+        const warnings = [];
+        Runtime.warnings.forEach((message) => warnings.push(message));
+
+        if (Runtime.audioContext && Runtime.channelCount < MAX_CHANNELS) {
+          warnings.push(`Limited channel availability: ${Runtime.channelCount} detected.`);
+        }
+
+        const maxPadChannel = Math.max(1, ...State.pads.map((pad) => pad.inputChannel));
+        if (Runtime.audioContext && Runtime.channelCount > 0 && maxPadChannel > Runtime.channelCount) {
+          warnings.push(`Pads use channel ${maxPadChannel}, but only ${Runtime.channelCount} channels are available.`);
+        }
+
+        if (!Runtime.midiOutput && Runtime.midiOutputs.length === 0) {
+          warnings.push("No MIDI outputs detected.");
+        }
+
+        if (warnings.length) {
+          Dom.status.innerHTML = warnings.map((text) => `<div>${escapeHtml(text)}</div>`).join("");
+          Dom.status.classList.add("active");
+        } else {
+          Dom.status.classList.remove("active");
+          Dom.status.innerHTML = "";
+        }
+      }
+
+      function resolveAllOverlaps() {
+        const stageRect = Dom.kitStage.getBoundingClientRect();
+        if (!stageRect.width || !stageRect.height) return;
+        const padData = State.pads.map((pad) => {
+          const el = Runtime.padElements.get(pad.id);
+          if (!el) return null;
+          const width = el.offsetWidth;
+          const height = el.offsetHeight;
+          return {
+            pad,
+            width,
+            height,
+            cx: (pad.x / 100) * stageRect.width,
+            cy: (pad.y / 100) * stageRect.height,
+          };
+        }).filter(Boolean);
+
+        if (padData.length < 2) return;
+
+        for (let iter = 0; iter < 24; iter += 1) {
+          let moved = false;
+          for (let i = 0; i < padData.length; i += 1) {
+            for (let j = i + 1; j < padData.length; j += 1) {
+              const a = padData[i];
+              const b = padData[j];
+              const overlap = getOverlap(a, b);
+              if (!overlap) continue;
+              moved = true;
+              const dx = b.cx - a.cx;
+              const dy = b.cy - a.cy;
+              if (overlap.x < overlap.y) {
+                const dir = dx === 0 ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(dx);
+                const shift = overlap.x / 2;
+                a.cx -= dir * shift;
+                b.cx += dir * shift;
+              } else {
+                const dir = dy === 0 ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(dy);
+                const shift = overlap.y / 2;
+                a.cy -= dir * shift;
+                b.cy += dir * shift;
+              }
+            }
+          }
+          padData.forEach((item) => clampPadCenter(item, stageRect));
+          if (!moved) break;
+        }
+
+        padData.forEach((item) => {
+          item.pad.x = clamp((item.cx / stageRect.width) * 100, 0, 100);
+          item.pad.y = clamp((item.cy / stageRect.height) * 100, 0, 100);
+          updatePadPosition(item.pad);
+        });
+      }
+
+      function getOverlap(a, b) {
+        const gap = 6;
+        const overlapX = (a.width / 2 + b.width / 2 + gap) - Math.abs(b.cx - a.cx);
+        const overlapY = (a.height / 2 + b.height / 2 + gap) - Math.abs(b.cy - a.cy);
+        if (overlapX > 0 && overlapY > 0) {
+          return { x: overlapX, y: overlapY };
+        }
+        return null;
+      }
+
+      function clampPadCenter(item, stageRect) {
+        const halfW = item.width / 2;
+        const halfH = item.height / 2;
+        item.cx = clamp(item.cx, halfW, stageRect.width - halfW);
+        item.cy = clamp(item.cy, halfH, stageRect.height - halfH);
+      }
+
+      function getPadBounds(pad, el, stageRect) {
+        const halfW = el.offsetWidth / 2;
+        const halfH = el.offsetHeight / 2;
+        const minX = (halfW / stageRect.width) * 100;
+        const maxX = 100 - minX;
+        const minY = (halfH / stageRect.height) * 100;
+        const maxY = 100 - minY;
+        return { minX, maxX, minY, maxY };
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function mapToRange(value, inMin, inMax, outMin, outMax) {
+        const clamped = (value - inMin) / (inMax - inMin);
+        return outMin + clamp(clamped, 0, 1) * (outMax - outMin);
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
