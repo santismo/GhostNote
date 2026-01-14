@@ -976,6 +976,17 @@
         <input id="maskTime" type="number" min="10" max="2000" value="80">
       </label>
       <label class="control">
+        Smart Hi-hat
+        <div class="inline">
+          <input id="smartHihat" type="checkbox">
+          <span class="hint">Combine open/closed</span>
+        </div>
+      </label>
+      <label class="control">
+        Hi-hat Window (ms)
+        <input id="smartHihatWindow" type="number" min="1" max="200" value="12">
+      </label>
+      <label class="control">
         Theme
         <select id="themeSelect">
           <option value="dark">Dark</option>
@@ -1073,6 +1084,8 @@
         midiChannel: 1,
         noteLength: DEFAULT_NOTE_LENGTH,
         maskTime: DEFAULT_MASK,
+        smartHihatEnabled: false,
+        smartHihatWindow: 12,
         channelOverride: null,
         detectedChannels: 0,
         pads: [],
@@ -1094,6 +1107,13 @@
         dragging: null,
         thresholdDrag: null,
         eqDrag: null,
+        smartHihat: {
+          pendingOpen: null,
+          pendingOpenPadId: null,
+          pendingOpenTime: 0,
+          pendingOpenVelocity: 0,
+          lastClosedTime: 0,
+        },
       };
 
       const Dom = {
@@ -1105,6 +1125,8 @@
         midiChannel: document.getElementById("midiChannel"),
         noteLength: document.getElementById("noteLength"),
         maskTime: document.getElementById("maskTime"),
+        smartHihat: document.getElementById("smartHihat"),
+        smartHihatWindow: document.getElementById("smartHihatWindow"),
         themeSelect: document.getElementById("themeSelect"),
         savePreset: document.getElementById("savePreset"),
         loadPreset: document.getElementById("loadPreset"),
@@ -1181,6 +1203,8 @@
         Dom.midiChannel.value = State.midiChannel;
         Dom.noteLength.value = State.noteLength;
         Dom.maskTime.value = State.maskTime;
+        Dom.smartHihat.checked = State.smartHihatEnabled;
+        Dom.smartHihatWindow.value = State.smartHihatWindow;
 
         bindEvents();
         renderPads();
@@ -1234,6 +1258,18 @@
         Dom.maskTime.addEventListener("input", (event) => {
           const value = parseInt(event.target.value, 10);
           State.maskTime = clamp(value || DEFAULT_MASK, 10, 2000);
+        });
+
+        Dom.smartHihat.addEventListener("change", (event) => {
+          State.smartHihatEnabled = event.target.checked;
+          if (!State.smartHihatEnabled) {
+            clearSmartHihatPending();
+          }
+        });
+
+        Dom.smartHihatWindow.addEventListener("input", (event) => {
+          const value = parseInt(event.target.value, 10);
+          State.smartHihatWindow = clamp(value || 12, 1, 200);
         });
 
         Dom.kitStage.addEventListener("pointerdown", handlePadPointerDown);
@@ -1663,6 +1699,7 @@
           node.mute.disconnect();
         });
         Runtime.padNodes.clear();
+        clearSmartHihatPending();
         if (Runtime.splitter) {
           Runtime.splitter.disconnect();
           Runtime.splitter = null;
@@ -1812,11 +1849,48 @@
       function triggerPad(pad, peak) {
         const velocity = calculateVelocity(peak, pad.sensitivity, pad.velocityCurve);
         const channel = State.midiChannel;
+        if (State.smartHihatEnabled && (pad.hihatRole === "open" || pad.hihatRole === "closed")) {
+          const nowMs = Runtime.audioContext ? Runtime.audioContext.currentTime * 1000 : performance.now();
+          const windowMs = State.smartHihatWindow;
+          const smart = Runtime.smartHihat;
+          if (pad.hihatRole === "open") {
+            if (smart.lastClosedTime && nowMs - smart.lastClosedTime <= windowMs) {
+              return;
+            }
+            clearSmartHihatPending();
+            smart.pendingOpenPadId = pad.id;
+            smart.pendingOpenTime = nowMs;
+            smart.pendingOpenVelocity = velocity;
+            smart.pendingOpen = setTimeout(() => {
+              smart.pendingOpen = null;
+              if (!pad.enabled) return;
+              sendNote(pad, smart.pendingOpenVelocity, channel);
+            }, windowMs);
+            return;
+          }
+          if (pad.hihatRole === "closed") {
+            smart.lastClosedTime = nowMs;
+            if (smart.pendingOpen && nowMs - smart.pendingOpenTime <= windowMs) {
+              clearSmartHihatPending();
+            }
+          }
+        }
         if (pad.hihatRole === "closed") {
           chokeOpenHats(pad);
         }
         pulsePad(pad.id);
         sendNote(pad, velocity, channel);
+      }
+
+      function clearSmartHihatPending() {
+        const smart = Runtime.smartHihat;
+        if (smart.pendingOpen) {
+          clearTimeout(smart.pendingOpen);
+          smart.pendingOpen = null;
+        }
+        smart.pendingOpenPadId = null;
+        smart.pendingOpenTime = 0;
+        smart.pendingOpenVelocity = 0;
       }
 
       function pulsePad(padId) {
@@ -2232,6 +2306,8 @@
             noteLength: State.noteLength,
             maskTime: State.maskTime,
             channelOverride: State.channelOverride,
+            smartHihatEnabled: State.smartHihatEnabled,
+            smartHihatWindow: State.smartHihatWindow,
           },
           drumPieces: State.pads.map((pad) => ({
             id: pad.id,
@@ -2299,11 +2375,15 @@
         State.noteLength = preset.global?.noteLength || DEFAULT_NOTE_LENGTH;
         State.maskTime = preset.global?.maskTime || DEFAULT_MASK;
         State.channelOverride = preset.global?.channelOverride ?? null;
+        State.smartHihatEnabled = preset.global?.smartHihatEnabled ?? false;
+        State.smartHihatWindow = preset.global?.smartHihatWindow ?? 12;
 
         Dom.midiChannel.value = State.midiChannel;
         Dom.noteLength.value = State.noteLength;
         Dom.maskTime.value = State.maskTime;
         Dom.channelOverride.value = State.channelOverride ?? "";
+        Dom.smartHihat.checked = State.smartHihatEnabled;
+        Dom.smartHihatWindow.value = State.smartHihatWindow;
 
         State.pads = (preset.drumPieces || []).map((pad) => createPad(pad));
         if (State.pads.length === 0) {
