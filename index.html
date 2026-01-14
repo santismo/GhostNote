@@ -12,21 +12,26 @@
     :root {
       --font-display: "Avenir Next", "Futura", "Gill Sans", "Trebuchet MS", sans-serif;
       --font-sans: "Avenir", "Candara", "Optima", "Segoe UI", sans-serif;
-      --bg: #0b0f12;
-      --bg-2: #0f1419;
-      --panel: #151c22;
-      --panel-2: #1b232b;
-      --text: #e7f0f2;
-      --muted: #9db0b8;
-      --accent: #27f0c5;
-      --accent-2: #ffb447;
-      --danger: #ff4f6e;
-      --border: #26313b;
-      --pad: #131a20;
-      --pad-ring: rgba(39, 240, 197, 0.25);
-      --meter: #27f0c5;
-      --wave: #93f5dc;
+      --bg: #050505;
+      --bg-2: #0a0a0a;
+      --panel: #111111;
+      --panel-2: #161616;
+      --text: #f2f2f2;
+      --muted: #9b9b9b;
+      --accent: #f2f2f2;
+      --accent-2: #bdbdbd;
+      --danger: #f2f2f2;
+      --border: #2b2b2b;
+      --pad: #0f0f0f;
+      --pad-scale: 1;
+      --pad-ring: rgba(242, 242, 242, 0.25);
+      --meter: #f2f2f2;
+      --wave: #f2f2f2;
       --shadow: rgba(7, 10, 13, 0.5);
+      --glow-1: rgba(255, 255, 255, 0.08);
+      --glow-2: rgba(255, 255, 255, 0.05);
+      --glow-3: rgba(255, 255, 255, 0.06);
+      --pulse: rgba(242, 242, 242, 0.45);
     }
 
     body.theme-neon {
@@ -44,6 +49,10 @@
       --pad-ring: rgba(88, 240, 255, 0.25);
       --meter: #58f0ff;
       --wave: #c8a7ff;
+      --glow-1: rgba(88, 240, 255, 0.12);
+      --glow-2: rgba(255, 122, 217, 0.08);
+      --glow-3: rgba(200, 167, 255, 0.08);
+      --pulse: rgba(88, 240, 255, 0.45);
     }
 
     body.theme-ember {
@@ -61,6 +70,10 @@
       --pad-ring: rgba(255, 122, 61, 0.25);
       --meter: #ff7a3d;
       --wave: #ffc09a;
+      --glow-1: rgba(255, 122, 61, 0.12);
+      --glow-2: rgba(255, 209, 102, 0.08);
+      --glow-3: rgba(255, 180, 140, 0.08);
+      --pulse: rgba(255, 122, 61, 0.45);
     }
 
     body.theme-ocean {
@@ -78,6 +91,10 @@
       --pad-ring: rgba(61, 217, 255, 0.25);
       --meter: #3dd9ff;
       --wave: #9be7ff;
+      --glow-1: rgba(61, 217, 255, 0.12);
+      --glow-2: rgba(122, 255, 199, 0.08);
+      --glow-3: rgba(155, 231, 255, 0.08);
+      --pulse: rgba(61, 217, 255, 0.45);
     }
 
     body.theme-forest {
@@ -95,6 +112,10 @@
       --pad-ring: rgba(91, 255, 155, 0.25);
       --meter: #5bff9b;
       --wave: #b5ffd1;
+      --glow-1: rgba(91, 255, 155, 0.12);
+      --glow-2: rgba(240, 255, 122, 0.08);
+      --glow-3: rgba(181, 255, 209, 0.08);
+      --pulse: rgba(91, 255, 155, 0.45);
     }
 
     body.theme-dusk {
@@ -112,6 +133,10 @@
       --pad-ring: rgba(155, 123, 255, 0.25);
       --meter: #9b7bff;
       --wave: #d0c0ff;
+      --glow-1: rgba(155, 123, 255, 0.12);
+      --glow-2: rgba(255, 139, 209, 0.08);
+      --glow-3: rgba(208, 192, 255, 0.08);
+      --pulse: rgba(155, 123, 255, 0.45);
     }
 
     * {
@@ -132,9 +157,9 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(circle at 10% 20%, rgba(39, 240, 197, 0.08), transparent 40%),
-        radial-gradient(circle at 85% 10%, rgba(255, 180, 71, 0.08), transparent 45%),
-        radial-gradient(circle at 75% 75%, rgba(39, 240, 197, 0.06), transparent 45%);
+        radial-gradient(circle at 10% 20%, var(--glow-1), transparent 40%),
+        radial-gradient(circle at 85% 10%, var(--glow-2), transparent 45%),
+        radial-gradient(circle at 75% 75%, var(--glow-3), transparent 45%);
       pointer-events: none;
       z-index: 0;
     }
@@ -306,8 +331,8 @@
     .status {
       display: none;
       padding: 10px 12px;
-      background: rgba(255, 79, 110, 0.12);
-      border: 1px solid rgba(255, 79, 110, 0.4);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       color: var(--text);
       border-radius: 12px;
       font-size: 13px;
@@ -319,8 +344,8 @@
 
     .pad {
       position: absolute;
-      width: var(--pad-w, 150px);
-      height: var(--pad-h, 140px);
+      width: calc(var(--pad-w, 150px) * var(--pad-scale));
+      height: calc(var(--pad-h, 140px) * var(--pad-scale));
       background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08), transparent 45%), var(--pad);
       border: 1px solid var(--border);
       border-radius: var(--pad-radius, 18px);
@@ -330,9 +355,19 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      align-items: stretch;
+      overflow: hidden;
       cursor: grab;
-      animation: floatIn 0.6s ease-out both;
       transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .pad::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: none;
     }
 
     .pad.selected {
@@ -349,10 +384,20 @@
       animation: pulse 0.16s ease-out;
     }
 
+    .pad.disabled {
+      opacity: 0.55;
+      filter: saturate(0.6);
+    }
+
     .pad[data-type="kick"] {
       --pad-w: 210px;
       --pad-h: 170px;
       --pad-radius: 50% / 55%;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.08), transparent 55%),
+        radial-gradient(circle at 50% 55%, rgba(0, 0, 0, 0.35), transparent 60%),
+        var(--pad);
+      border-width: 2px;
     }
 
     .pad[data-type="snare"],
@@ -360,24 +405,40 @@
       --pad-w: 150px;
       --pad-h: 150px;
       --pad-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 50% 60%, rgba(0, 0, 0, 0.25), transparent 60%),
+        var(--pad);
     }
 
     .pad[data-type="hihat"] {
       --pad-w: 130px;
       --pad-h: 110px;
       --pad-radius: 45% 45% 55% 55%;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.18), transparent 60%),
+        radial-gradient(circle at 50% 70%, rgba(0, 0, 0, 0.35), transparent 60%),
+        var(--pad);
     }
 
     .pad[data-type="cymbal"] {
       --pad-w: 190px;
       --pad-h: 110px;
       --pad-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.2), transparent 60%),
+        radial-gradient(circle at 50% 55%, rgba(0, 0, 0, 0.35), transparent 65%),
+        var(--pad);
     }
 
     .pad[data-type="percussion"] {
       --pad-w: 150px;
       --pad-h: 130px;
       --pad-radius: 40px;
+      background:
+        radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.12), transparent 55%),
+        radial-gradient(circle at 60% 65%, rgba(0, 0, 0, 0.25), transparent 60%),
+        var(--pad);
     }
 
     .pad[data-type="other"] {
@@ -388,17 +449,59 @@
 
     .pad-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
       font-family: var(--font-display);
       font-size: 14px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
+      gap: 6px;
+      min-width: 0;
+      width: 100%;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    .pad-header span {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
     }
 
     .pad-meta {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+
+    .pad-toggle {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      color: var(--text);
+      align-self: center;
+    }
+
+    .pad-toggle.on {
+      background: var(--accent);
+      color: #0a1012;
+      border: none;
+    }
+
+    .pad-toggle.off {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
     .pad-meter {
@@ -494,9 +597,24 @@
       display: block;
     }
 
-    .eq-grid {
+    .monitor-wrap {
       position: relative;
       width: 100%;
+    }
+
+    .eq-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .eq-overlay.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .eq-overlay.disabled .eq-handle {
+      pointer-events: none;
     }
 
     .eq-handle {
@@ -514,6 +632,7 @@
       cursor: grab;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
       user-select: none;
+      pointer-events: auto;
     }
 
     .eq-handle[data-role="lp"] {
@@ -521,6 +640,40 @@
     }
 
     .eq-handle:active {
+      cursor: grabbing;
+    }
+
+    .threshold-track {
+      position: absolute;
+      right: 8px;
+      top: 10px;
+      bottom: 10px;
+      width: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      justify-content: center;
+    }
+
+    .threshold-track.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .threshold-handle {
+      position: absolute;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+      cursor: grab;
+    }
+
+    .threshold-handle:active {
       cursor: grabbing;
     }
 
@@ -587,11 +740,11 @@
     @keyframes pulse {
       0% {
         transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 0 0 rgba(39, 240, 197, 0.4);
+        box-shadow: 0 0 0 0 var(--pulse);
       }
       60% {
         transform: translate(-50%, -50%) scale(1.05);
-        box-shadow: 0 0 20px 6px rgba(39, 240, 197, 0.4);
+        box-shadow: 0 0 20px 6px var(--pulse);
       }
       100% {
         transform: translate(-50%, -50%) scale(1);
@@ -628,6 +781,24 @@
       }
       .kit-stage {
         min-height: 460px;
+        --pad-scale: 0.82;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .kit-stage {
+        min-height: 420px;
+        --pad-scale: 0.72;
+      }
+      .bottombar {
+        padding: 12px;
+      }
+      .control {
+        min-width: 100%;
+      }
+      .actions {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   </style>
@@ -698,6 +869,10 @@
               <input id="padSensitivity" type="range" min="0.3" max="4" step="0.05">
             </label>
             <label class="panel-field">
+              Input Boost (dB)
+              <input id="padInputBoost" type="number" min="-12" max="24" step="1">
+            </label>
+            <label class="panel-field">
               Velocity Curve
               <select id="padVelocityCurve">
                 <option value="linear">Linear</option>
@@ -738,19 +913,29 @@
 
           <div class="panel-group">
             <div class="panel-field">
-              Audio Monitor (drag the threshold line)
-              <canvas id="padWaveform" class="pad-visual" width="360" height="120"></canvas>
-              <div class="panel-muted">Threshold: <span id="padThresholdValue">0.12</span></div>
-            </div>
-            <div class="panel-field">
-              EQ Grid (drag HP/LP points)
-              <div id="eqGrid" class="eq-grid">
-                <canvas id="eqCanvas" class="pad-visual" width="360" height="120"></canvas>
-                <div class="eq-handle" data-role="hp">HP</div>
-                <div class="eq-handle" data-role="lp">LP</div>
+              Audio Monitor
+              <div id="monitorWrap" class="monitor-wrap">
+                <canvas id="padWaveform" class="pad-visual" width="360" height="140"></canvas>
+                <div id="eqOverlay" class="eq-overlay">
+                  <div class="eq-handle" data-role="hp">HP</div>
+                  <div class="eq-handle" data-role="lp">LP</div>
+                </div>
+                <div id="thresholdTrack" class="threshold-track">
+                  <div id="thresholdHandle" class="threshold-handle"></div>
+                </div>
               </div>
-              <div class="panel-muted">HP: <span id="eqHpValue">-</span> | LP: <span id="eqLpValue">-</span></div>
             </div>
+            <label class="panel-field">
+              Waveform View
+              <select id="padWaveView">
+                <option value="time">Time</option>
+                <option value="rectified">Rectified</option>
+                <option value="envelope">Envelope</option>
+                <option value="fft">FFT</option>
+              </select>
+            </label>
+            <div class="panel-muted">Threshold: <span id="padThresholdValue">0.12</span></div>
+            <div class="panel-muted">HP: <span id="eqHpValue">-</span> | LP: <span id="eqLpValue">-</span></div>
             <div class="panel-actions">
               <button id="padLearn">Learn Threshold</button>
               <button id="padRemove" class="danger">Remove Pad</button>
@@ -784,7 +969,7 @@
       </label>
       <label class="control">
         Note Length (ms)
-        <input id="noteLength" type="number" min="10" max="2000" value="120">
+        <input id="noteLength" type="number" min="10" max="2000" value="40">
       </label>
       <label class="control">
         Mask Time (ms)
@@ -850,8 +1035,10 @@
       "use strict";
 
       const MAX_CHANNELS = 16;
-      const DEFAULT_NOTE_LENGTH = 120;
+      const DEFAULT_NOTE_LENGTH = 40;
       const DEFAULT_MASK = 80;
+      const THRESHOLD_MIN = 0.02;
+      const THRESHOLD_MAX = 1.5;
       const HP_RANGE = { min: 20, max: 1000 };
       const LP_RANGE = { min: 200, max: 20000 };
       const Q_RANGE = { min: 0.2, max: 12 };
@@ -905,7 +1092,7 @@
         midiOutput: null,
         warnings: new Map(),
         dragging: null,
-        waveDrag: null,
+        thresholdDrag: null,
         eqDrag: null,
       };
 
@@ -932,6 +1119,7 @@
         padChannel: document.getElementById("padChannel"),
         padMidiNote: document.getElementById("padMidiNote"),
         padSensitivity: document.getElementById("padSensitivity"),
+        padInputBoost: document.getElementById("padInputBoost"),
         padVelocityCurve: document.getElementById("padVelocityCurve"),
         padMaskOverride: document.getElementById("padMaskOverride"),
         padHihatRole: document.getElementById("padHihatRole"),
@@ -940,10 +1128,13 @@
         padLocked: document.getElementById("padLocked"),
         padLearn: document.getElementById("padLearn"),
         padRemove: document.getElementById("padRemove"),
+        monitorWrap: document.getElementById("monitorWrap"),
         padWaveform: document.getElementById("padWaveform"),
         padThresholdValue: document.getElementById("padThresholdValue"),
-        eqGrid: document.getElementById("eqGrid"),
-        eqCanvas: document.getElementById("eqCanvas"),
+        thresholdTrack: document.getElementById("thresholdTrack"),
+        thresholdHandle: document.getElementById("thresholdHandle"),
+        padWaveView: document.getElementById("padWaveView"),
+        eqOverlay: document.getElementById("eqOverlay"),
         eqHpValue: document.getElementById("eqHpValue"),
         eqLpValue: document.getElementById("eqLpValue"),
         addPadModal: document.getElementById("addPadModal"),
@@ -956,12 +1147,11 @@
       };
 
       const EqHandles = {
-        hp: Dom.eqGrid.querySelector(".eq-handle[data-role='hp']"),
-        lp: Dom.eqGrid.querySelector(".eq-handle[data-role='lp']"),
+        hp: Dom.eqOverlay.querySelector(".eq-handle[data-role='hp']"),
+        lp: Dom.eqOverlay.querySelector(".eq-handle[data-role='lp']"),
       };
 
       const waveCtx = Dom.padWaveform.getContext("2d");
-      const eqCtx = Dom.eqCanvas.getContext("2d");
 
       function init() {
         State.pads = DEFAULT_PADS.map((pad, index) => createPad({
@@ -1052,6 +1242,11 @@
         window.addEventListener("resize", () => {
           updatePadPositions();
           resolveAllOverlaps();
+          const pad = getSelectedPad();
+          if (pad) {
+            updateEqHandles(pad);
+            updateThresholdHandle(pad);
+          }
         });
 
         Dom.padName.addEventListener("input", () => updateSelectedPad("name", Dom.padName.value));
@@ -1059,6 +1254,7 @@
         Dom.padChannel.addEventListener("change", () => updateSelectedPad("inputChannel", parseInt(Dom.padChannel.value, 10), true));
         Dom.padMidiNote.addEventListener("input", () => updateSelectedPad("midiNote", parseInt(Dom.padMidiNote.value, 10) || 0, false));
         Dom.padSensitivity.addEventListener("input", () => updateSelectedPad("sensitivity", parseFloat(Dom.padSensitivity.value) || 1));
+        Dom.padInputBoost.addEventListener("input", () => updateSelectedPad("inputBoostDb", parseFloat(Dom.padInputBoost.value) || 0));
         Dom.padVelocityCurve.addEventListener("change", () => updateSelectedPad("velocityCurve", Dom.padVelocityCurve.value));
         Dom.padMaskOverride.addEventListener("input", () => {
           const value = parseInt(Dom.padMaskOverride.value, 10);
@@ -1068,11 +1264,13 @@
         Dom.padHihatChoked.addEventListener("change", () => updateSelectedPad("hihatChokedByClosed", Dom.padHihatChoked.value === "yes"));
         Dom.padHihatChokeMode.addEventListener("change", () => updateSelectedPad("hihatChokeMode", Dom.padHihatChokeMode.value));
         Dom.padLocked.addEventListener("change", () => togglePadLock(Dom.padLocked.checked));
+        Dom.padWaveView.addEventListener("change", () => updateSelectedPad("waveView", Dom.padWaveView.value));
         Dom.padLearn.addEventListener("click", () => learnThreshold(getSelectedPad()));
         Dom.padRemove.addEventListener("click", removeSelectedPad);
 
-        Dom.padWaveform.addEventListener("pointerdown", handleWaveformPointerDown);
-        Dom.eqGrid.addEventListener("pointerdown", handleEqPointerDown);
+        Dom.thresholdTrack.addEventListener("pointerdown", handleThresholdPointerDown);
+        Dom.thresholdHandle.addEventListener("pointerdown", handleThresholdPointerDown);
+        Dom.eqOverlay.addEventListener("pointerdown", handleEqPointerDown);
       }
 
       function toggleAudio() {
@@ -1103,13 +1301,16 @@
           type: data.type,
           inputChannel: data.inputChannel,
           midiNote: data.midiNote,
-          threshold: data.threshold ?? 0.12,
+          threshold: clamp(data.threshold ?? 0.12, THRESHOLD_MIN, THRESHOLD_MAX),
           sensitivity: data.sensitivity ?? 1.0,
           velocityCurve: data.velocityCurve || "linear",
           maskOverride: data.maskOverride ?? null,
           hihatRole: data.hihatRole || "none",
           hihatChokedByClosed: data.hihatChokedByClosed ?? false,
           hihatChokeMode: data.hihatChokeMode || "noteOff",
+          enabled: data.enabled ?? true,
+          waveView: data.waveView || "time",
+          inputBoostDb: data.inputBoostDb ?? 0,
           filter,
           x: data.x ?? 50,
           y: data.y ?? 50,
@@ -1144,15 +1345,19 @@
           const el = document.createElement("div");
           el.className = "pad";
           if (pad.id === State.selectedPadId) el.classList.add("selected");
+          if (!pad.enabled) el.classList.add("disabled");
           el.dataset.id = pad.id;
           el.dataset.type = pad.type;
           el.style.animationDelay = `${index * 60}ms`;
+          const toggleLabel = pad.enabled ? "On" : "Off";
+          const toggleClass = pad.enabled ? "on" : "off";
           el.innerHTML = `
             <div class="pad-header">
               <span>${escapeHtml(pad.name)}</span>
             </div>
             <div class="pad-meta">CH ${pad.inputChannel} | MIDI ${pad.midiNote}</div>
             <div class="pad-meter"><span></span></div>
+            <button class="pad-toggle ${toggleClass}" data-action="toggle">${toggleLabel}</button>
           `;
           Dom.kitStage.appendChild(el);
           Runtime.padElements.set(pad.id, el);
@@ -1176,7 +1381,14 @@
         const padEl = event.target.closest(".pad");
         if (!padEl) return;
         const padId = padEl.dataset.id;
+        const button = event.target.closest("button");
         selectPad(padId);
+        if (button) {
+          if (button.dataset.action === "toggle") {
+            togglePadEnabled(padId);
+          }
+          return;
+        }
         Runtime.dragging = { id: padId, pointerId: event.pointerId };
         padEl.classList.add("dragging");
         padEl.setPointerCapture(event.pointerId);
@@ -1220,15 +1432,18 @@
         Dom.padChannel.value = pad.inputChannel;
         Dom.padMidiNote.value = pad.midiNote;
         Dom.padSensitivity.value = pad.sensitivity;
+        Dom.padInputBoost.value = pad.inputBoostDb;
         Dom.padVelocityCurve.value = pad.velocityCurve;
         Dom.padMaskOverride.value = pad.maskOverride ?? "";
         Dom.padHihatRole.value = pad.hihatRole;
         Dom.padHihatChoked.value = pad.hihatChokedByClosed ? "yes" : "no";
         Dom.padHihatChokeMode.value = pad.hihatChokeMode;
         Dom.padLocked.checked = pad.settingsLocked;
+        Dom.padWaveView.value = pad.waveView;
         Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
         Dom.padRemove.disabled = pad.protected;
         updateEqHandles(pad);
+        updateThresholdHandle(pad);
         applyPadLockState(pad);
       }
 
@@ -1242,6 +1457,12 @@
           if (el) el.dataset.type = value;
         }
         updatePadElement(pad);
+        if (key === "waveView") {
+          updateThresholdHandle(pad);
+        }
+        if (key === "inputBoostDb") {
+          updatePadGain(pad);
+        }
         if (requiresAudioUpdate) {
           rebuildPadAudio(pad);
         }
@@ -1263,16 +1484,20 @@
           Dom.padChannel,
           Dom.padMidiNote,
           Dom.padSensitivity,
+          Dom.padInputBoost,
           Dom.padVelocityCurve,
           Dom.padMaskOverride,
           Dom.padHihatRole,
           Dom.padHihatChoked,
           Dom.padHihatChokeMode,
+          Dom.padWaveView,
           Dom.padLearn,
         ].forEach((control) => {
           control.disabled = disabled;
         });
         Dom.padRemove.disabled = pad.protected || disabled;
+        Dom.thresholdTrack.classList.toggle("disabled", disabled);
+        Dom.eqOverlay.classList.toggle("disabled", disabled);
       }
 
       function updatePadElement(pad) {
@@ -1280,8 +1505,22 @@
         if (!el) return;
         const header = el.querySelector(".pad-header span");
         const meta = el.querySelector(".pad-meta");
+        const toggle = el.querySelector(".pad-toggle");
         if (header) header.textContent = pad.name;
         if (meta) meta.textContent = `CH ${pad.inputChannel} | MIDI ${pad.midiNote}`;
+        if (toggle) {
+          toggle.textContent = pad.enabled ? "On" : "Off";
+          toggle.classList.toggle("on", pad.enabled);
+          toggle.classList.toggle("off", !pad.enabled);
+        }
+        el.classList.toggle("disabled", !pad.enabled);
+      }
+
+      function togglePadEnabled(padId) {
+        const pad = getPad(padId);
+        if (!pad) return;
+        pad.enabled = !pad.enabled;
+        updatePadElement(pad);
       }
 
       function getPad(id) {
@@ -1418,6 +1657,7 @@
         Runtime.padNodes.forEach((node) => {
           node.processor.disconnect();
           node.analyser.disconnect();
+          node.gain.disconnect();
           node.lowpass.disconnect();
           node.highpass.disconnect();
           node.mute.disconnect();
@@ -1458,6 +1698,9 @@
         lowpass.frequency.value = pad.filter.lp;
         lowpass.Q.value = pad.filter.lpQ;
 
+        const gain = ctx.createGain();
+        gain.gain.value = dbToGain(pad.inputBoostDb);
+
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 256;
 
@@ -1468,7 +1711,8 @@
 
         Runtime.splitter.connect(highpass, inputIndex);
         highpass.connect(lowpass);
-        lowpass.connect(analyser);
+        lowpass.connect(gain);
+        gain.connect(analyser);
         analyser.connect(processor);
         processor.connect(mute);
         mute.connect(ctx.destination);
@@ -1476,6 +1720,7 @@
         const runtime = {
           highpass,
           lowpass,
+          gain,
           analyser,
           processor,
           mute,
@@ -1487,6 +1732,12 @@
           activeNote: null,
           learn: { active: false, max: 0, endTime: 0 },
           waveData: new Uint8Array(analyser.fftSize),
+          freqData: new Uint8Array(analyser.frequencyBinCount),
+          fftHold: new Float32Array(analyser.frequencyBinCount),
+          displayData: new Float32Array(analyser.fftSize),
+          lastView: "time",
+          peakHold: 0,
+          displayGain: 1,
         };
 
         processor.onaudioprocess = (event) => {
@@ -1503,16 +1754,17 @@
           if (runtime.learn.active) {
             runtime.learn.max = Math.max(runtime.learn.max, peak);
             if (nowMs > runtime.learn.endTime) {
-              pad.threshold = clamp(runtime.learn.max * 0.6, 0.02, 1);
+              pad.threshold = clamp(runtime.learn.max * 0.6, THRESHOLD_MIN, THRESHOLD_MAX);
               runtime.learn.active = false;
               if (State.selectedPadId === pad.id) {
                 Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
+                updateThresholdHandle(pad);
               }
             }
           }
 
           const mask = Number.isFinite(pad.maskOverride) ? pad.maskOverride : State.maskTime;
-          if (peak >= pad.threshold && nowMs - runtime.lastTriggerTime > mask) {
+          if (pad.enabled && peak >= pad.threshold && nowMs - runtime.lastTriggerTime > mask) {
             runtime.lastTriggerTime = nowMs;
             triggerPad(pad, peak);
           }
@@ -1532,6 +1784,7 @@
         if (!runtime) return;
         runtime.processor.disconnect();
         runtime.analyser.disconnect();
+        runtime.gain.disconnect();
         runtime.lowpass.disconnect();
         runtime.highpass.disconnect();
         runtime.mute.disconnect();
@@ -1546,6 +1799,14 @@
         runtime.highpass.Q.value = pad.filter.hpQ;
         runtime.lowpass.frequency.setTargetAtTime(pad.filter.lp, ctx.currentTime, 0.01);
         runtime.lowpass.Q.value = pad.filter.lpQ;
+      }
+
+      function updatePadGain(pad) {
+        const runtime = Runtime.padNodes.get(pad.id);
+        if (!runtime || !Runtime.audioContext) return;
+        const ctx = Runtime.audioContext;
+        const target = dbToGain(pad.inputBoostDb);
+        runtime.gain.gain.setTargetAtTime(target, ctx.currentTime, 0.01);
       }
 
       function triggerPad(pad, peak) {
@@ -1631,13 +1892,15 @@
           const selected = getSelectedPad();
           if (!selected) {
             waveCtx.clearRect(0, 0, Dom.padWaveform.width, Dom.padWaveform.height);
-            eqCtx.clearRect(0, 0, Dom.eqCanvas.width, Dom.eqCanvas.height);
+            Dom.eqOverlay.style.display = "none";
+            Dom.thresholdTrack.style.display = "none";
             return;
           }
+          Dom.eqOverlay.style.display = "block";
+          Dom.thresholdTrack.style.display = "flex";
           const runtime = Runtime.padNodes.get(selected.id);
           if (!runtime) return;
           drawWaveform(selected, runtime);
-          drawEqGrid(selected);
         };
         draw();
       }
@@ -1645,62 +1908,149 @@
       function drawWaveform(pad, runtime) {
         const width = Dom.padWaveform.width;
         const height = Dom.padWaveform.height;
+        const view = pad.waveView || "time";
+        if (runtime.lastView !== view) {
+          runtime.displayData.fill(0);
+          runtime.fftHold.fill(0);
+          runtime.displayGain = 1;
+          runtime.lastView = view;
+        }
         runtime.analyser.getByteTimeDomainData(runtime.waveData);
         waveCtx.clearRect(0, 0, width, height);
         waveCtx.fillStyle = "rgba(0,0,0,0.2)";
         waveCtx.fillRect(0, 0, width, height);
-        waveCtx.lineWidth = 2;
-        waveCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--wave");
-        waveCtx.beginPath();
-        for (let i = 0; i < runtime.waveData.length; i += 1) {
-          const value = runtime.waveData[i] / 128.0;
-          const x = (i / runtime.waveData.length) * width;
-          const y = (value * height) / 2;
-          if (i === 0) waveCtx.moveTo(x, y);
-          else waveCtx.lineTo(x, y);
-        }
-        waveCtx.stroke();
-
-        const center = height / 2;
-        const thresholdOffset = pad.threshold * center;
-        waveCtx.strokeStyle = "rgba(255,255,255,0.4)";
-        waveCtx.beginPath();
-        waveCtx.moveTo(0, center - thresholdOffset);
-        waveCtx.lineTo(width, center - thresholdOffset);
-        waveCtx.moveTo(0, center + thresholdOffset);
-        waveCtx.lineTo(width, center + thresholdOffset);
-        waveCtx.stroke();
-
-        const peakHeight = clamp(runtime.lastPeak, 0, 1) * center;
-        waveCtx.fillStyle = "rgba(39, 240, 197, 0.55)";
-        waveCtx.fillRect(width - 6, center - peakHeight, 4, peakHeight * 2);
-      }
-
-      function drawEqGrid(pad) {
-        const width = Dom.eqCanvas.width;
-        const height = Dom.eqCanvas.height;
-        eqCtx.clearRect(0, 0, width, height);
-        eqCtx.fillStyle = "rgba(0,0,0,0.2)";
-        eqCtx.fillRect(0, 0, width, height);
-        eqCtx.strokeStyle = "rgba(255,255,255,0.12)";
-        eqCtx.lineWidth = 1;
+        waveCtx.strokeStyle = "rgba(255,255,255,0.12)";
+        waveCtx.lineWidth = 1;
         for (let i = 1; i < 4; i += 1) {
           const x = (i / 4) * width;
           const y = (i / 4) * height;
-          eqCtx.beginPath();
-          eqCtx.moveTo(x, 0);
-          eqCtx.lineTo(x, height);
-          eqCtx.stroke();
-          eqCtx.beginPath();
-          eqCtx.moveTo(0, y);
-          eqCtx.lineTo(width, y);
-          eqCtx.stroke();
+          waveCtx.beginPath();
+          waveCtx.moveTo(x, 0);
+          waveCtx.lineTo(x, height);
+          waveCtx.stroke();
+          waveCtx.beginPath();
+          waveCtx.moveTo(0, y);
+          waveCtx.lineTo(width, y);
+          waveCtx.stroke();
         }
+
+        waveCtx.save();
+        waveCtx.lineWidth = 1.6;
+        waveCtx.globalAlpha = 0.35;
+        waveCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--accent-2").trim();
+        waveCtx.beginPath();
+        const minFreq = 20;
+        const maxFreq = 20000;
+        for (let i = 0; i <= width; i += 1) {
+          const ratio = i / width;
+          const freq = minFreq * Math.pow(maxFreq / minFreq, ratio);
+          const hpGain = freq / Math.sqrt(freq * freq + pad.filter.hp * pad.filter.hp);
+          const lpGain = pad.filter.lp / Math.sqrt(freq * freq + pad.filter.lp * pad.filter.lp);
+          const gain = hpGain * lpGain;
+          const y = height - gain * (height * 0.8) - height * 0.1;
+          if (i === 0) waveCtx.moveTo(i, y);
+          else waveCtx.lineTo(i, y);
+        }
+        waveCtx.stroke();
+        waveCtx.restore();
+
+        waveCtx.lineWidth = 2;
+        waveCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--wave");
+        waveCtx.beginPath();
+        const timeDecay = 0.92;
+        const rectDecay = 0.94;
+        const envDecay = 0.97;
+        let maxDisplay = 0.001;
+        if (view === "fft") {
+          runtime.analyser.getByteFrequencyData(runtime.freqData);
+          for (let i = 0; i < runtime.freqData.length; i += 1) {
+            const value = runtime.freqData[i] / 255;
+            runtime.fftHold[i] = Math.max(value, runtime.fftHold[i] * 0.9);
+            maxDisplay = Math.max(maxDisplay, runtime.fftHold[i]);
+          }
+          const targetGain = clamp(1 / maxDisplay, 1, 3);
+          runtime.displayGain = runtime.displayGain * 0.9 + targetGain * 0.1;
+          const sampleRate = Runtime.audioContext ? Runtime.audioContext.sampleRate : 44100;
+          const minFreq = 20;
+          const maxFreq = sampleRate / 2;
+          const logDenom = Math.log10(maxFreq / minFreq);
+          for (let i = 0; i < runtime.fftHold.length; i += 1) {
+            const freq = (i / runtime.fftHold.length) * maxFreq;
+            const x = freq <= minFreq ? 0 : (Math.log10(freq / minFreq) / logDenom) * width;
+            const value = clamp(runtime.fftHold[i] * runtime.displayGain, 0, 1);
+            const y = height - value * height;
+            if (i === 0) waveCtx.moveTo(x, y);
+            else waveCtx.lineTo(x, y);
+          }
+        } else {
+          for (let i = 0; i < runtime.waveData.length; i += 1) {
+            const sample = (runtime.waveData[i] - 128) / 128;
+            if (view === "rectified") {
+              const rectified = Math.abs(sample);
+              runtime.displayData[i] = Math.max(rectified, runtime.displayData[i] * rectDecay);
+              maxDisplay = Math.max(maxDisplay, runtime.displayData[i]);
+            } else if (view === "envelope") {
+              const rectified = Math.abs(sample);
+              runtime.displayData[i] = Math.max(rectified, runtime.displayData[i] * envDecay);
+              maxDisplay = Math.max(maxDisplay, runtime.displayData[i]);
+            } else {
+              const prev = runtime.displayData[i] * timeDecay;
+              const next = Math.abs(sample) >= Math.abs(prev) ? sample : prev;
+              runtime.displayData[i] = next;
+              maxDisplay = Math.max(maxDisplay, Math.abs(next));
+            }
+          }
+          const targetGain = clamp(1 / maxDisplay, 1, 3);
+          runtime.displayGain = runtime.displayGain * 0.88 + targetGain * 0.12;
+
+          for (let i = 0; i < runtime.displayData.length; i += 1) {
+            const x = (i / runtime.displayData.length) * width;
+            let y = 0;
+            if (view === "rectified" || view === "envelope") {
+              const value = clamp(runtime.displayData[i] * runtime.displayGain, 0, 1);
+              y = height - value * height;
+            } else {
+              const value = clamp(runtime.displayData[i] * runtime.displayGain, -1, 1);
+              y = value * (height / 2) + height / 2;
+            }
+            if (i === 0) waveCtx.moveTo(x, y);
+            else waveCtx.lineTo(x, y);
+          }
+        }
+        waveCtx.stroke();
+
+        waveCtx.strokeStyle = "rgba(255,255,255,0.4)";
+        waveCtx.beginPath();
+        const thresholdNorm = clamp(pad.threshold / THRESHOLD_MAX, 0, 1);
+        if (view === "time") {
+          const center = height / 2;
+          const thresholdOffset = thresholdNorm * center;
+          waveCtx.moveTo(0, center - thresholdOffset);
+          waveCtx.lineTo(width, center - thresholdOffset);
+          waveCtx.moveTo(0, center + thresholdOffset);
+          waveCtx.lineTo(width, center + thresholdOffset);
+        } else {
+          const y = height - thresholdNorm * height;
+          waveCtx.moveTo(0, y);
+          waveCtx.lineTo(width, y);
+        }
+        waveCtx.stroke();
+
+        runtime.peakHold = Math.max(runtime.lastPeak, runtime.peakHold * 0.92);
+        const peakHeight = clamp(runtime.peakHold, 0, 1) * (height / 2);
+        const center = height / 2;
+        waveCtx.save();
+        waveCtx.globalAlpha = 0.45;
+        waveCtx.fillStyle = getComputedStyle(document.body).getPropertyValue("--accent").trim();
+        waveCtx.fillRect(width - 6, center - peakHeight, 4, peakHeight * 2);
+        waveCtx.restore();
+
         updateEqHandles(pad);
+        updateThresholdHandle(pad);
       }
 
       function updateEqHandles(pad) {
-        const gridRect = Dom.eqGrid.getBoundingClientRect();
+        const gridRect = Dom.eqOverlay.getBoundingClientRect();
         if (!gridRect.width || !gridRect.height) return;
         const hpX = mapToRange(pad.filter.hp, HP_RANGE.min, HP_RANGE.max, 0, gridRect.width);
         const lpX = mapToRange(pad.filter.lp, LP_RANGE.min, LP_RANGE.max, 0, gridRect.width);
@@ -1714,34 +2064,53 @@
         Dom.eqLpValue.textContent = `${Math.round(pad.filter.lp)} Hz / Q ${pad.filter.lpQ.toFixed(2)}`;
       }
 
-      function handleWaveformPointerDown(event) {
+      function updateThresholdHandle(pad) {
+        const rect = Dom.thresholdTrack.getBoundingClientRect();
+        if (!rect.height) return;
+        const thresholdNorm = clamp(pad.threshold / THRESHOLD_MAX, 0, 1);
+        const view = pad.waveView || "time";
+        if (view === "time") {
+          const center = rect.height / 2;
+          const offset = thresholdNorm * center;
+          Dom.thresholdHandle.style.top = `${center - offset}px`;
+        } else {
+          Dom.thresholdHandle.style.top = `${rect.height - thresholdNorm * rect.height}px`;
+        }
+      }
+
+      function handleThresholdPointerDown(event) {
         const pad = getSelectedPad();
         if (!pad || pad.settingsLocked) return;
-        Runtime.waveDrag = { active: true };
+        Runtime.thresholdDrag = true;
         updateThresholdFromPointer(event);
-        window.addEventListener("pointermove", handleWaveformPointerMove);
-        window.addEventListener("pointerup", handleWaveformPointerUp, { once: true });
+        window.addEventListener("pointermove", handleThresholdPointerMove);
+        window.addEventListener("pointerup", handleThresholdPointerUp, { once: true });
       }
 
-      function handleWaveformPointerMove(event) {
-        if (!Runtime.waveDrag) return;
+      function handleThresholdPointerMove(event) {
+        if (!Runtime.thresholdDrag) return;
         updateThresholdFromPointer(event);
       }
 
-      function handleWaveformPointerUp() {
-        Runtime.waveDrag = null;
-        window.removeEventListener("pointermove", handleWaveformPointerMove);
+      function handleThresholdPointerUp() {
+        Runtime.thresholdDrag = null;
+        window.removeEventListener("pointermove", handleThresholdPointerMove);
       }
 
       function updateThresholdFromPointer(event) {
         const pad = getSelectedPad();
         if (!pad) return;
-        const rect = Dom.padWaveform.getBoundingClientRect();
+        const rect = Dom.thresholdTrack.getBoundingClientRect();
         const y = clamp(event.clientY - rect.top, 0, rect.height);
-        const center = rect.height / 2;
-        const distance = Math.abs(y - center);
-        pad.threshold = clamp(distance / center, 0.02, 1);
+        if ((pad.waveView || "time") === "time") {
+          const center = rect.height / 2;
+          const distance = Math.abs(y - center);
+          pad.threshold = clamp((distance / center) * THRESHOLD_MAX, THRESHOLD_MIN, THRESHOLD_MAX);
+        } else {
+          pad.threshold = clamp(((rect.height - y) / rect.height) * THRESHOLD_MAX, THRESHOLD_MIN, THRESHOLD_MAX);
+        }
         Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
+        updateThresholdHandle(pad);
       }
 
       function handleEqPointerDown(event) {
@@ -1768,7 +2137,7 @@
       function updateEqFromPointer(event) {
         const pad = getSelectedPad();
         if (!pad || !Runtime.eqDrag) return;
-        const rect = Dom.eqGrid.getBoundingClientRect();
+        const rect = Dom.eqOverlay.getBoundingClientRect();
         const x = clamp(event.clientX - rect.left, 0, rect.width);
         const y = clamp(event.clientY - rect.top, 0, rect.height);
         const q = clamp(mapToRange(y, rect.height, 0, Q_RANGE.min, Q_RANGE.max), Q_RANGE.min, Q_RANGE.max);
@@ -1877,6 +2246,9 @@
             hihatRole: pad.hihatRole,
             hihatChokedByClosed: pad.hihatChokedByClosed,
             hihatChokeMode: pad.hihatChokeMode,
+            enabled: pad.enabled,
+            waveView: pad.waveView,
+            inputBoostDb: pad.inputBoostDb,
             filter: pad.filter,
             x: pad.x,
             y: pad.y,
@@ -1950,6 +2322,9 @@
             hihatRole: pad.hihatRole || "none",
             hihatChokedByClosed: pad.hihatRole === "open",
             hihatChokeMode: "noteOff",
+            enabled: true,
+            waveView: "time",
+            inputBoostDb: 0,
             filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
             settingsLocked: false,
             protected: true,
@@ -2099,6 +2474,10 @@
       function mapToRange(value, inMin, inMax, outMin, outMax) {
         const clamped = (value - inMin) / (inMax - inMin);
         return outMin + clamp(clamped, 0, 1) * (outMax - outMin);
+      }
+
+      function dbToGain(db) {
+        return Math.pow(10, db / 20);
       }
 
       function escapeHtml(text) {
