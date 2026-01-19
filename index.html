@@ -1087,6 +1087,7 @@
         smartHihatEnabled: false,
         smartHihatWindow: 12,
         channelOverride: null,
+        requestedChannels: 0,
         detectedChannels: 0,
         actualChannels: 0,
         maxChannels: 0,
@@ -1096,6 +1097,7 @@
 
       const Runtime = {
         audioContext: null,
+        audioStarting: false,
         stream: null,
         source: null,
         splitter: null,
@@ -1319,12 +1321,23 @@
         Dom.eqOverlay.addEventListener("pointerdown", handleEqPointerDown);
       }
 
-      function toggleAudio() {
+      async function toggleAudio() {
+        if (Runtime.audioStarting) return;
         if (Runtime.audioContext) {
+          if (Runtime.audioContext.state === "suspended") {
+            try {
+              await Runtime.audioContext.resume();
+            } catch (error) {
+              setWarning("audio", "Audio context could not be resumed.");
+              updateWarnings();
+            }
+            updateAudioToggle();
+            return;
+          }
           stopAudio();
-        } else {
-          startAudio();
+          return;
         }
+        await startAudio();
       }
 
       function updateAudioToggle() {
@@ -1689,6 +1702,17 @@
       function getChannelCountInfo(track, fallback) {
         const settings = track && track.getSettings ? track.getSettings() : {};
         const actual = Number.isFinite(settings.channelCount) ? settings.channelCount : null;
+        const constraints = track && track.getConstraints ? track.getConstraints() : {};
+        let requested = null;
+        const constraintCount = constraints.channelCount;
+        if (typeof constraintCount === "number") {
+          requested = constraintCount;
+        } else if (constraintCount && typeof constraintCount === "object") {
+          requested = constraintCount.exact ?? constraintCount.ideal ?? constraintCount.max ?? null;
+        }
+        if (!Number.isFinite(requested) && Number.isFinite(fallback)) {
+          requested = fallback;
+        }
         let max = null;
 
         if (track && track.getCapabilities) {
@@ -1703,15 +1727,26 @@
           }
         }
 
-        const available = Math.max(actual || 0, max || 0, fallback || 0);
-        const detected = actual || max || fallback || MAX_CHANNELS;
+        const available = Math.max(actual || 0, max || 0, requested || 0);
+        const detected = Math.max(actual || 0, max || 0, requested || 0);
 
         return {
           actual,
           max,
+          requested,
           available,
           detected,
         };
+      }
+
+      function resolveTargetChannels(info, desiredChannels) {
+        const override = Number.isFinite(State.channelOverride) ? State.channelOverride : null;
+        const requested = override || (Number.isFinite(info.requested) ? info.requested : desiredChannels);
+        let target = requested || info.actual || 1;
+        if (Number.isFinite(info.max)) {
+          target = Math.min(target, info.max);
+        }
+        return clamp(target, 1, MAX_CHANNELS);
       }
 
       async function requestAudioStream(desiredChannels) {
@@ -1725,23 +1760,37 @@
           googAutoGainControl: false,
           googHighpassFilter: false,
         };
-        const constraints = Number.isFinite(desiredChannels)
-          ? { audio: { ...base, channelCount: { exact: desiredChannels } } }
-          : { audio: base };
-
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
-          Runtime.micPermissionState = "granted";
-          return stream;
-        } catch (error) {
-          const name = error && error.name;
-          if (name === "NotAllowedError" || name === "SecurityError") {
-            Runtime.micPermissionState = "denied";
-          } else {
-            Runtime.micPermissionState = "granted";
-          }
-          throw error;
+        const attempts = [];
+        if (Number.isFinite(desiredChannels)) {
+          attempts.push({ audio: { ...base, channelCount: { exact: desiredChannels } } });
+          attempts.push({ audio: { ...base, channelCount: { ideal: desiredChannels } } });
         }
+        attempts.push({ audio: base });
+
+        let lastError = null;
+        for (const constraints of attempts) {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            Runtime.micPermissionState = "granted";
+            return stream;
+          } catch (error) {
+            lastError = error;
+            const name = error && error.name;
+            if (name === "NotAllowedError" || name === "SecurityError") {
+              Runtime.micPermissionState = "denied";
+              throw error;
+            }
+          }
+        }
+
+        if (lastError) {
+          const name = lastError && lastError.name;
+          Runtime.micPermissionState = name === "NotAllowedError" || name === "SecurityError"
+            ? "denied"
+            : "granted";
+          throw lastError;
+        }
+        throw new Error("Unable to access audio input.");
       }
 
       async function applyChannelCount(track, desiredChannels) {
@@ -1766,11 +1815,15 @@
         if (!info) return;
         State.actualChannels = Number.isFinite(info.actual) ? info.actual : 0;
         State.maxChannels = Number.isFinite(info.max) ? info.max : 0;
-        State.detectedChannels = info.detected;
-        if (State.actualChannels && State.maxChannels && State.maxChannels > State.actualChannels) {
-          Dom.detectedChannels.textContent = `${State.actualChannels} / ${State.maxChannels}`;
+        State.requestedChannels = Number.isFinite(info.requested) ? info.requested : 0;
+        State.detectedChannels = Number.isFinite(info.detected) ? info.detected : 0;
+        const upper = State.maxChannels || State.requestedChannels;
+        if (State.actualChannels && upper && upper > State.actualChannels) {
+          Dom.detectedChannels.textContent = `${State.actualChannels} / ${upper}`;
+        } else if (State.detectedChannels) {
+          Dom.detectedChannels.textContent = `${State.detectedChannels}`;
         } else {
-          Dom.detectedChannels.textContent = State.detectedChannels;
+          Dom.detectedChannels.textContent = "-";
         }
       }
 
@@ -1781,9 +1834,9 @@
             const current = Runtime.stream.getAudioTracks()[0];
             if (!current || current !== track) return;
             const info = getChannelCountInfo(current, desiredChannels);
+            const target = resolveTargetChannels(info, desiredChannels);
+            info.detected = Math.max(info.detected || 0, target);
             updateDetectedChannels(info);
-            const effectiveChannels = State.channelOverride || info.max || info.actual || desiredChannels;
-            const target = clamp(effectiveChannels, 1, MAX_CHANNELS);
             if (target !== Runtime.channelCount) {
               rebuildChannelGraph(target);
             } else {
@@ -1804,6 +1857,8 @@
           const track = stream.getAudioTracks()[0];
           await applyChannelCount(track, desiredChannels);
           const info = getChannelCountInfo(track, desiredChannels);
+          const target = resolveTargetChannels(info, desiredChannels);
+          info.detected = Math.max(info.detected || 0, target);
           updateDetectedChannels(info);
           stream.getTracks().forEach((probeTrack) => probeTrack.stop());
           await refreshAudioDevices();
@@ -1816,25 +1871,34 @@
       }
 
       async function startAudio() {
+        if (Runtime.audioStarting) return;
+        Runtime.audioStarting = true;
         stopAudio();
+        const desiredChannels = clamp(State.channelOverride || MAX_CHANNELS, 1, MAX_CHANNELS);
         try {
-          const desiredChannels = clamp(State.channelOverride || MAX_CHANNELS, 1, MAX_CHANNELS);
           Runtime.stream = await requestAudioStream(desiredChannels);
           Runtime.deviceListPrimed = true;
           const track = Runtime.stream.getAudioTracks()[0];
           await applyChannelCount(track, desiredChannels);
           const info = getChannelCountInfo(track, desiredChannels);
           Runtime.audioContext = new AudioContext();
+          await Runtime.audioContext.resume().catch(() => {});
           const source = Runtime.audioContext.createMediaStreamSource(Runtime.stream);
           Runtime.source = source;
+          const sourceChannels = Number.isFinite(source.channelCount) ? source.channelCount : null;
+          if (Number.isFinite(sourceChannels)) {
+            info.actual = Math.max(info.actual || 0, sourceChannels);
+          }
+          const targetChannels = resolveTargetChannels(info, desiredChannels);
+          info.detected = Math.max(info.detected || 0, targetChannels);
           updateDetectedChannels(info);
-          if (info.actual && info.actual < desiredChannels) {
-            setWarning("audioChannels", `Browser returned ${info.actual} channels, requested ${desiredChannels}.`);
+          const requestedChannels = Number.isFinite(info.requested) ? info.requested : desiredChannels;
+          if (info.actual && requestedChannels && info.actual < requestedChannels) {
+            setWarning("audioChannels", `Browser returned ${info.actual} channels, requested ${requestedChannels}.`);
           } else {
             clearWarning("audioChannels");
           }
-          const effectiveChannels = State.channelOverride || info.max || info.actual || desiredChannels;
-          Runtime.channelCount = clamp(effectiveChannels, 1, MAX_CHANNELS);
+          Runtime.channelCount = targetChannels;
           source.channelCountMode = "explicit";
           source.channelInterpretation = "discrete";
           source.channelCount = Runtime.channelCount;
@@ -1848,6 +1912,7 @@
           scheduleChannelRefresh(track, desiredChannels);
           await refreshAudioDevices();
         } catch (error) {
+          stopAudio();
           const name = error && error.name;
           if (name === "OverconstrainedError") {
             setWarning("audio", `Device cannot supply ${desiredChannels} channels. Check Audio MIDI Setup and set the device to ${desiredChannels}ch.`);
@@ -1857,6 +1922,8 @@
             setWarning("audio", "Audio permission denied or unavailable.");
           }
           updateWarnings();
+        } finally {
+          Runtime.audioStarting = false;
           updateAudioToggle();
         }
       }
@@ -2651,6 +2718,12 @@
 
         if (Runtime.audioContext && State.actualChannels && State.maxChannels && State.maxChannels > State.actualChannels) {
           warnings.push(`Browser is delivering ${State.actualChannels} channels, device reports ${State.maxChannels}. Check Audio MIDI Setup.`);
+        }
+
+        if (Runtime.audioContext && State.actualChannels && State.requestedChannels
+          && (!State.maxChannels || State.maxChannels <= State.actualChannels)
+          && State.requestedChannels > State.actualChannels) {
+          warnings.push(`Browser returned ${State.actualChannels} channels, requested ${State.requestedChannels}.`);
         }
 
         const maxPadChannel = Math.max(1, ...State.pads.map((pad) => pad.inputChannel));
