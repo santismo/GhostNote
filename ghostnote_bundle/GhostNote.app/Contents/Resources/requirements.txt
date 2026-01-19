@@ -1,0 +1,5 @@
+numpy
+sounddevice
+mido
+python-rtmidi
+websockets
