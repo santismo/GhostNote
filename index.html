@@ -1,142 +1,23 @@
 <!doctype html>
-<!--
-  GhostNote: single-file Chrome app with inline UI, audio engine, MIDI engine, and presets
-  Designed for local use with multichannel drum piezo inputs routed to MIDI drum notes
--->
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GhostNote</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CamOrder</title>
   <style>
     :root {
-      --font-display: "Avenir Next", "Futura", "Gill Sans", "Trebuchet MS", sans-serif;
-      --font-sans: "Avenir", "Candara", "Optima", "Segoe UI", sans-serif;
-      --bg: #050505;
-      --bg-2: #0a0a0a;
-      --panel: #111111;
-      --panel-2: #161616;
-      --text: #f2f2f2;
-      --muted: #9b9b9b;
-      --accent: #f2f2f2;
-      --accent-2: #bdbdbd;
-      --danger: #f2f2f2;
-      --border: #2b2b2b;
-      --pad: #0f0f0f;
-      --pad-scale: 1;
-      --pad-ring: rgba(242, 242, 242, 0.25);
-      --meter: #f2f2f2;
-      --wave: #f2f2f2;
-      --shadow: rgba(7, 10, 13, 0.5);
-      --glow-1: rgba(255, 255, 255, 0.08);
-      --glow-2: rgba(255, 255, 255, 0.05);
-      --glow-3: rgba(255, 255, 255, 0.06);
-      --pulse: rgba(242, 242, 242, 0.45);
-    }
-
-    body.theme-neon {
-      --bg: #09070f;
-      --bg-2: #130d1f;
-      --panel: #1a1330;
-      --panel-2: #251b3d;
-      --text: #f1edff;
-      --muted: #b1a8d8;
-      --accent: #58f0ff;
-      --accent-2: #ff7ad9;
-      --danger: #ff5c93;
-      --border: #2f2550;
-      --pad: #1b1431;
-      --pad-ring: rgba(88, 240, 255, 0.25);
-      --meter: #58f0ff;
-      --wave: #c8a7ff;
-      --glow-1: rgba(88, 240, 255, 0.12);
-      --glow-2: rgba(255, 122, 217, 0.08);
-      --glow-3: rgba(200, 167, 255, 0.08);
-      --pulse: rgba(88, 240, 255, 0.45);
-    }
-
-    body.theme-ember {
-      --bg: #120b0b;
-      --bg-2: #1b1111;
-      --panel: #221414;
-      --panel-2: #2b1a1a;
-      --text: #f7eee7;
-      --muted: #c7a99a;
-      --accent: #ff7a3d;
-      --accent-2: #ffd166;
-      --danger: #ff5a75;
-      --border: #3a2525;
-      --pad: #1c1212;
-      --pad-ring: rgba(255, 122, 61, 0.25);
-      --meter: #ff7a3d;
-      --wave: #ffc09a;
-      --glow-1: rgba(255, 122, 61, 0.12);
-      --glow-2: rgba(255, 209, 102, 0.08);
-      --glow-3: rgba(255, 180, 140, 0.08);
-      --pulse: rgba(255, 122, 61, 0.45);
-    }
-
-    body.theme-ocean {
-      --bg: #06131a;
-      --bg-2: #0b1d28;
-      --panel: #0f2330;
-      --panel-2: #152d3a;
-      --text: #e9f6ff;
-      --muted: #9fb6c6;
-      --accent: #3dd9ff;
-      --accent-2: #7affc7;
-      --danger: #ff6b8a;
-      --border: #1e3948;
-      --pad: #0c1c26;
-      --pad-ring: rgba(61, 217, 255, 0.25);
-      --meter: #3dd9ff;
-      --wave: #9be7ff;
-      --glow-1: rgba(61, 217, 255, 0.12);
-      --glow-2: rgba(122, 255, 199, 0.08);
-      --glow-3: rgba(155, 231, 255, 0.08);
-      --pulse: rgba(61, 217, 255, 0.45);
-    }
-
-    body.theme-forest {
-      --bg: #0b130e;
-      --bg-2: #101b15;
-      --panel: #122118;
-      --panel-2: #182a1f;
-      --text: #edf6f0;
-      --muted: #a6b8ac;
-      --accent: #5bff9b;
-      --accent-2: #f0ff7a;
-      --danger: #ff6f8b;
-      --border: #243628;
-      --pad: #0f1912;
-      --pad-ring: rgba(91, 255, 155, 0.25);
-      --meter: #5bff9b;
-      --wave: #b5ffd1;
-      --glow-1: rgba(91, 255, 155, 0.12);
-      --glow-2: rgba(240, 255, 122, 0.08);
-      --glow-3: rgba(181, 255, 209, 0.08);
-      --pulse: rgba(91, 255, 155, 0.45);
-    }
-
-    body.theme-dusk {
-      --bg: #0d0b1a;
-      --bg-2: #161027;
-      --panel: #1b1430;
-      --panel-2: #241a3d;
-      --text: #f2efff;
-      --muted: #b7addb;
-      --accent: #9b7bff;
-      --accent-2: #ff8bd1;
-      --danger: #ff5c93;
-      --border: #2d244a;
-      --pad: #171027;
-      --pad-ring: rgba(155, 123, 255, 0.25);
-      --meter: #9b7bff;
-      --wave: #d0c0ff;
-      --glow-1: rgba(155, 123, 255, 0.12);
-      --glow-2: rgba(255, 139, 209, 0.08);
-      --glow-3: rgba(208, 192, 255, 0.08);
-      --pulse: rgba(155, 123, 255, 0.45);
+      --bg-0: #0e1217;
+      --bg-1: #141a21;
+      --panel: #1d242d;
+      --panel-hi: #242d38;
+      --panel-edge: #2c3744;
+      --text: #e6ecf3;
+      --muted: #98a6b3;
+      --accent: #4ad38a;
+      --accent-2: #3aa2ff;
+      --danger: #ff4d4d;
+      --warning: #f2c94c;
+      --shadow: rgba(0, 0, 0, 0.35);
     }
 
     * {
@@ -145,2428 +26,2896 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(140deg, var(--bg), var(--bg-2));
+      font-family: "Trebuchet MS", "Lucida Sans Unicode", "Tahoma", sans-serif;
       color: var(--text);
-      font-family: var(--font-sans);
-      letter-spacing: 0.01em;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
       background:
-        radial-gradient(circle at 10% 20%, var(--glow-1), transparent 40%),
-        radial-gradient(circle at 85% 10%, var(--glow-2), transparent 45%),
-        radial-gradient(circle at 75% 75%, var(--glow-3), transparent 45%);
-      pointer-events: none;
-      z-index: 0;
+        radial-gradient(1200px 600px at 20% 10%, rgba(58, 162, 255, 0.12), transparent 60%),
+        radial-gradient(900px 500px at 85% 15%, rgba(74, 211, 138, 0.12), transparent 65%),
+        linear-gradient(160deg, var(--bg-0), var(--bg-1));
+      height: 100vh;
+      overflow: hidden;
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: linear-gradient(transparent 95%, rgba(255, 255, 255, 0.03) 96%);
-      background-size: 100% 28px;
-      opacity: 0.2;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .app {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      padding: 18px 22px 180px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 14px 18px;
-      background: var(--panel);
-      border-radius: 16px;
-      box-shadow: 0 18px 40px var(--shadow);
-    }
-
-    .brand {
-      font-family: var(--font-display);
-      font-size: 26px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-
-    .audio-toggle {
-      min-width: 120px;
-    }
-
-    .audio-toggle.on {
-      background: var(--accent);
-      color: #0a1012;
-      border: none;
-    }
-
-    .audio-toggle.off {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .controls {
-      display: flex;
-      flex: 1;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .control {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      min-width: 140px;
-    }
-
-    .control input,
-    .control select {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 8px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: var(--font-sans);
-    }
-
-    .control .inline {
-      display: flex;
-      align-items: center;
+    #app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 68px 1fr 320px;
       gap: 8px;
+      padding: 10px;
     }
 
-    .control .hint {
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      text-transform: none;
-    }
-
-    .actions {
-      display: flex;
+    #topbar {
+      display: grid;
+      grid-template-columns: 1.6fr 1.2fr 1.2fr;
       gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      background: var(--panel-2);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      align-items: center;
       padding: 8px 12px;
-      font-family: var(--font-sans);
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    button.primary {
-      background: var(--accent);
-      color: #0a1012;
-      border: none;
-    }
-
-    button.danger {
-      background: transparent;
-      color: var(--danger);
-      border-color: rgba(255, 79, 110, 0.4);
-    }
-
-    button.flash {
-      background: var(--accent-2);
-      color: #0a1012;
-      border: none;
-      transform: translateY(-1px);
-      box-shadow: 0 0 18px rgba(255, 180, 71, 0.5);
-    }
-
-    main {
-      display: grid;
-      grid-template-columns: minmax(0, 1.9fr) minmax(320px, 0.9fr);
-      gap: 18px;
-    }
-
-    .kit-stage {
-      position: relative;
-      min-height: 520px;
-      border-radius: 22px;
-      padding: 22px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 35%),
-        radial-gradient(circle at 30% 20%, rgba(39, 240, 197, 0.07), transparent 50%),
-        var(--panel);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .kit-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-    }
-
-    .status {
-      display: none;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: var(--text);
-      border-radius: 12px;
-      font-size: 13px;
-    }
-
-    .status.active {
-      display: block;
-    }
-
-    .pad {
-      position: absolute;
-      width: calc(var(--pad-w, 150px) * var(--pad-scale));
-      height: calc(var(--pad-h, 140px) * var(--pad-scale));
-      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.08), transparent 45%), var(--pad);
-      border: 1px solid var(--border);
-      border-radius: var(--pad-radius, 18px);
-      padding: 10px 12px;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: stretch;
-      overflow: hidden;
-      cursor: grab;
-      transition: box-shadow 0.2s ease, border-color 0.2s ease;
-    }
-
-    .pad::after {
-      content: "";
-      position: absolute;
-      inset: 8px;
-      border-radius: inherit;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      pointer-events: none;
-    }
-
-    .pad.selected {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px var(--pad-ring), 0 20px 36px rgba(0, 0, 0, 0.3);
-    }
-
-    .pad.dragging {
-      cursor: grabbing;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-    }
-
-    .pad.pulse {
-      animation: pulse 0.16s ease-out;
-    }
-
-    .pad.disabled {
-      opacity: 0.55;
-      filter: saturate(0.6);
-    }
-
-    .pad[data-type="kick"] {
-      --pad-w: 210px;
-      --pad-h: 170px;
-      --pad-radius: 50% / 55%;
-      background:
-        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.08), transparent 55%),
-        radial-gradient(circle at 50% 55%, rgba(0, 0, 0, 0.35), transparent 60%),
-        var(--pad);
-      border-width: 2px;
-    }
-
-    .pad[data-type="snare"],
-    .pad[data-type="tom"] {
-      --pad-w: 150px;
-      --pad-h: 150px;
-      --pad-radius: 50%;
-      background:
-        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.12), transparent 55%),
-        radial-gradient(circle at 50% 60%, rgba(0, 0, 0, 0.25), transparent 60%),
-        var(--pad);
-    }
-
-    .pad[data-type="hihat"] {
-      --pad-w: 130px;
-      --pad-h: 110px;
-      --pad-radius: 45% 45% 55% 55%;
-      background:
-        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.18), transparent 60%),
-        radial-gradient(circle at 50% 70%, rgba(0, 0, 0, 0.35), transparent 60%),
-        var(--pad);
-    }
-
-    .pad[data-type="cymbal"] {
-      --pad-w: 190px;
-      --pad-h: 110px;
-      --pad-radius: 999px;
-      background:
-        radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.2), transparent 60%),
-        radial-gradient(circle at 50% 55%, rgba(0, 0, 0, 0.35), transparent 65%),
-        var(--pad);
-    }
-
-    .pad[data-type="percussion"] {
-      --pad-w: 150px;
-      --pad-h: 130px;
-      --pad-radius: 40px;
-      background:
-        radial-gradient(circle at 40% 35%, rgba(255, 255, 255, 0.12), transparent 55%),
-        radial-gradient(circle at 60% 65%, rgba(0, 0, 0, 0.25), transparent 60%),
-        var(--pad);
-    }
-
-    .pad[data-type="other"] {
-      --pad-w: 150px;
-      --pad-h: 130px;
-      --pad-radius: 22px;
-    }
-
-    .pad-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: var(--font-display);
-      font-size: 14px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      gap: 6px;
-      min-width: 0;
-      width: 100%;
-      text-align: center;
-      min-height: 20px;
-    }
-
-    .pad-header span {
-      flex: 1;
-      min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: center;
-    }
-
-    .pad-meta {
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: center;
-    }
-
-    .pad-toggle {
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border);
-      color: var(--text);
-      align-self: center;
-    }
-
-    .pad-toggle.on {
-      background: var(--accent);
-      color: #0a1012;
-      border: none;
-    }
-
-    .pad-toggle.off {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-    }
-
-    .pad-meter {
-      height: 8px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .pad-meter span {
-      display: block;
-      height: 100%;
-      width: 100%;
-      transform-origin: left center;
-      transform: scaleX(0);
-      background: linear-gradient(90deg, var(--meter), var(--accent-2));
-    }
-
-    .pad-panel {
-      padding: 18px;
-      background: var(--panel);
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-height: 520px;
-    }
-
-    .pad-panel h2 {
-      font-family: var(--font-display);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-size: 16px;
-      margin: 0;
-    }
-
-    .panel-group {
-      display: grid;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .panel-group:last-child {
-      border-bottom: none;
-    }
-
-    .panel-field {
-      display: grid;
-      gap: 6px;
-      font-size: 11px;
-      text-transform: uppercase;
-      color: var(--muted);
-      letter-spacing: 0.12em;
-    }
-
-    .panel-field input,
-    .panel-field select {
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 8px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: var(--font-sans);
-    }
-
-    .panel-field .inline {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .panel-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .panel-muted {
-      font-size: 11px;
-      text-transform: none;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-    }
-
-    .pad-visual {
-      width: 100%;
+      background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+      border: 1px solid var(--panel-edge);
+      box-shadow: 0 8px 20px var(--shadow);
       border-radius: 10px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      display: block;
+      animation: rise-in 0.5s ease-out;
     }
 
-    .monitor-wrap {
-      position: relative;
-      width: 100%;
-    }
-
-    .eq-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .eq-overlay.disabled {
-      opacity: 0.45;
-      pointer-events: none;
-    }
-
-    .eq-overlay.disabled .eq-handle {
-      pointer-events: none;
-    }
-
-    .eq-handle {
-      position: absolute;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #0a1012;
-      font-size: 10px;
-      font-weight: bold;
-      display: grid;
-      place-items: center;
-      transform: translate(-50%, -50%);
-      cursor: grab;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
-      user-select: none;
-      pointer-events: auto;
-    }
-
-    .eq-handle[data-role="lp"] {
-      background: var(--accent-2);
-    }
-
-    .eq-handle:active {
-      cursor: grabbing;
-    }
-
-    .threshold-track {
-      position: absolute;
-      right: 8px;
-      top: 10px;
-      bottom: 10px;
-      width: 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      display: flex;
-      justify-content: center;
-    }
-
-    .threshold-track.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-
-    .threshold-handle {
-      position: absolute;
-      left: 50%;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent-2);
-      transform: translate(-50%, -50%);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
-      cursor: grab;
-    }
-
-    .threshold-handle:active {
-      cursor: grabbing;
-    }
-
-    .bottombar {
-      position: fixed;
-      left: 18px;
-      right: 18px;
-      bottom: 18px;
-      background: var(--panel);
-      border-radius: 16px;
-      padding: 14px 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 18px 40px var(--shadow);
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 14px;
-      z-index: 5;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(5, 6, 9, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-card {
-      width: min(420px, 92vw);
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .modal-card h3 {
-      margin: 0;
-      font-family: var(--font-display);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-size: 16px;
-    }
-
-    @keyframes floatIn {
+    @keyframes rise-in {
       from {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.96);
+        transform: translateY(6px);
       }
       to {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translateY(0);
       }
     }
 
-    @keyframes pulse {
-      0% {
-        transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 0 0 var(--pulse);
-      }
-      60% {
-        transform: translate(-50%, -50%) scale(1.05);
-        box-shadow: 0 0 20px 6px var(--pulse);
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
-      }
+    .transport-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .transport-group label {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button, select, input[type="text"], input[type="number"] {
+      background: var(--panel-hi);
+      color: var(--text);
+      border: 1px solid var(--panel-edge);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    button {
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    button:hover {
+      background: #2a3541;
+      border-color: #3a4756;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.primary {
+      background: var(--accent-2);
+      border-color: rgba(58, 162, 255, 0.6);
+      color: #081b2d;
+      font-weight: 700;
+    }
+
+    button.danger {
+      background: var(--danger);
+      border-color: #ff7a7a;
+      color: #2b0b0b;
+      font-weight: 700;
+    }
+
+    button.ghost {
+      background: transparent;
+      border: 1px dashed var(--panel-edge);
+      color: var(--muted);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    #recIndicator {
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 77, 77, 0.15);
+      color: var(--danger);
+      font-weight: 700;
+      letter-spacing: 1px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    #timeDisplay {
+      font-family: "Lucida Console", "Courier New", monospace;
+      font-size: 13px;
+      background: #0f141a;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #26303b;
+    }
+
+    #content {
+      display: grid;
+      grid-template-columns: var(--left-width, 250px) 1fr var(--right-width, 300px);
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, #1a222b, #182029);
+      border: 1px solid var(--panel-edge);
+      border-radius: 10px;
+      box-shadow: 0 8px 20px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid #25303b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .collapse-toggle {
+      background: transparent;
+      border: 1px solid #2c3744;
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 12px;
+    }
+
+    .panel.collapsed {
+      min-width: 44px;
+    }
+
+    .panel.collapsed .panel-body {
+      display: none;
+    }
+
+    .panel.collapsed .panel-header h3,
+    .panel.collapsed .panel-header .transport-group button:not(.collapse-toggle),
+    .panel.collapsed .panel-header .transport-group label,
+    .panel.collapsed .panel-header .transport-group input,
+    .panel.collapsed .panel-header .transport-group select {
+      display: none;
+    }
+
+    #binList {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: auto;
+      flex: 1;
+    }
+
+    .bin-item {
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #131820;
+      border: 1px solid transparent;
+      display: grid;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .bin-item.missing {
+      border-color: rgba(242, 201, 76, 0.6);
+    }
+
+    .bin-item.selected {
+      border-color: var(--accent-2);
+      background: rgba(58, 162, 255, 0.15);
+    }
+
+    .bin-title {
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .bin-meta {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    #monitorFrame {
+      position: relative;
+      background: #06080b;
+      border-radius: 12px;
+      margin: 10px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 180px;
+      cursor: grab;
+    }
+
+    #programVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+      display: none;
+    }
+
+    #monitorPlaceholder {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    #inspectorContent {
+      padding: 10px 12px;
+      overflow: auto;
+      flex: 1;
+    }
+
+    .field {
+      margin-bottom: 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .readonly {
+      padding: 6px 8px;
+      background: #0f141a;
+      border-radius: 6px;
+      border: 1px solid #26303b;
+      font-size: 12px;
+      font-family: "Lucida Console", "Courier New", monospace;
+    }
+
+    .project-actions {
+      padding: 8px 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    #exportNotes {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      background: #10161d;
+      border-radius: 6px;
+      padding: 8px;
+      border: 1px dashed #2a3541;
+      white-space: pre-wrap;
+    }
+
+    #timelineSection {
+      background: linear-gradient(180deg, #141b23, #10161d);
+      border: 1px solid var(--panel-edge);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+
+    #timelineToolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #25303b;
+    }
+
+    #timelineBody {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      min-height: 0;
+    }
+
+    #trackHeaders {
+      overflow: auto;
+      border-right: 1px solid #25303b;
+      background: #11161d;
+    }
+
+    .track-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+      padding: 10px 8px;
+      border-bottom: 1px solid #1f2731;
+      height: 70px;
+    }
+
+    .track-header.selected {
+      background: rgba(58, 162, 255, 0.15);
+    }
+
+    .track-name {
+      width: 100%;
+      background: #0e141b;
+      border: 1px solid #233040;
+      color: var(--text);
+      padding: 4px 6px;
+      font-size: 12px;
+    }
+
+    .track-controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .track-btn {
+      padding: 4px 6px;
+      font-size: 10px;
+      border-radius: 5px;
+    }
+
+    .track-btn.armed {
+      background: rgba(255, 77, 77, 0.2);
+      border-color: rgba(255, 77, 77, 0.6);
+      color: #ffb3b3;
+    }
+
+    .track-btn.hidden {
+      background: rgba(152, 166, 179, 0.15);
+      color: var(--muted);
+    }
+
+    #timelineScroll {
+      overflow: auto;
+      position: relative;
+    }
+
+    #timelineInner {
+      position: relative;
+      min-height: 100%;
+    }
+
+    #ruler {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 28px;
+      background: #0e141b;
+    }
+
+    #tracksLane {
+      position: absolute;
+      top: 28px;
+      left: 0;
+      width: 100%;
+    }
+
+    .track-row {
+      position: relative;
+      height: 70px;
+      border-bottom: 1px solid #1f2731;
+      background: #0f151d;
+    }
+
+    .track-row.hidden {
+      opacity: 0.35;
+    }
+
+    .clip {
+      position: absolute;
+      top: 10px;
+      height: 50px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(58, 162, 255, 0.4), rgba(58, 162, 255, 0.15));
+      border: 1px solid rgba(58, 162, 255, 0.6);
+      display: grid;
+      align-items: center;
+      padding: 0 10px;
+      cursor: grab;
+      color: #dbe9ff;
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    .clip.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(74, 211, 138, 0.3);
+    }
+
+    .clip-label {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .handle {
+      position: absolute;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      cursor: ew-resize;
+    }
+
+    .handle.left {
+      left: 0;
+      border-radius: 6px 0 0 6px;
+    }
+
+    .handle.right {
+      right: 0;
+      border-radius: 0 6px 6px 0;
+    }
+
+    #playhead {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      background: var(--danger);
+      height: 100%;
+      pointer-events: auto;
+      cursor: ew-resize;
+    }
+
+    .status-pill {
+      padding: 3px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(74, 211, 138, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(74, 211, 138, 0.4);
+    }
+
+    .status-pill.warn {
+      background: rgba(242, 201, 76, 0.15);
+      color: var(--warning);
+      border-color: rgba(242, 201, 76, 0.4);
+    }
+
+    .status-pill.off {
+      background: rgba(152, 166, 179, 0.1);
+      color: var(--muted);
+      border-color: rgba(152, 166, 179, 0.3);
+    }
+
+    .status-pill.live {
+      background: rgba(255, 77, 77, 0.15);
+      color: var(--danger);
+      border-color: rgba(255, 77, 77, 0.5);
     }
 
     @media (max-width: 1100px) {
-      main {
+      #topbar {
+        grid-template-columns: 1fr;
+        row-gap: 8px;
+      }
+
+      #content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+
+      #timelineBody {
         grid-template-columns: 1fr;
       }
-      .pad-panel {
-        min-height: auto;
-      }
-      .bottombar {
-        position: static;
-        margin-top: 12px;
-      }
-      .app {
-        padding-bottom: 26px;
-      }
-    }
 
-    @media (max-width: 700px) {
-      .topbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .brand {
-        text-align: center;
-      }
-      .controls {
-        flex-direction: column;
-      }
-      .kit-stage {
-        min-height: 460px;
-        --pad-scale: 0.82;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .kit-stage {
-        min-height: 420px;
-        --pad-scale: 0.72;
-      }
-      .bottombar {
-        padding: 12px;
-      }
-      .control {
-        min-width: 100%;
-      }
-      .actions {
-        width: 100%;
-        justify-content: space-between;
+      #trackHeaders {
+        display: none;
       }
     }
   </style>
 </head>
-<body class="theme-dark">
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">GhostNote 👻</div>
-      <button id="toggleAudio" class="audio-toggle off">Audio Off</button>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <div class="transport-group">
+        <button id="playBtn" class="primary">Play</button>
+        <button id="stopBtn" class="ghost">Stop</button>
+        <button id="recordBtn" class="danger">Record</button>
+        <span id="recIndicator">REC</span>
+        <span id="timeDisplay">00:00:00:00</span>
+        <label>FPS
+          <select id="fpsSelect">
+            <option value="24">24</option>
+            <option value="25">25</option>
+            <option value="30" selected>30</option>
+            <option value="60">60</option>
+          </select>
+        </label>
+        <label>Zoom
+          <input id="zoomSlider" type="range" min="20" max="400" value="120" />
+        </label>
+      </div>
+      <div class="transport-group">
+        <label>Camera
+          <select id="cameraSelect"></select>
+        </label>
+        <label>Resolution
+          <select id="resolutionSelect"></select>
+        </label>
+        <button id="refreshDevices" class="ghost">Refresh</button>
+        <button id="enableCameraBtn" class="ghost">Enable Camera</button>
+        <span id="cameraStatus" class="status-pill off">Camera Off</span>
+      </div>
+      <div class="transport-group">
+        <label>MIDI In
+          <select id="midiInputSelect"></select>
+        </label>
+        <label>Mode
+          <select id="midiModeSelect">
+            <option value="clock">MIDI Clock</option>
+            <option value="mtc">MTC</option>
+            <option value="mmc">MMC</option>
+          </select>
+        </label>
+        <button id="midiConnectBtn" class="ghost">Enable MIDI</button>
+        <span id="midiStatus" class="status-pill off">MIDI Off</span>
+      </div>
     </header>
 
-    <div id="status" class="status"></div>
-
-    <main>
-      <section>
-        <div id="kitStage" class="kit-stage"></div>
-        <div class="kit-actions">
-          <button id="addPad" class="primary">Add Drum Piece</button>
-          <span class="panel-muted">Click a pad to edit. Drag pads to edit layout.</span>
+    <section id="content">
+      <aside id="bin" class="panel collapsible collapsed">
+        <div class="panel-header">
+          <h3>Project Bin</h3>
+          <div class="transport-group">
+            <button id="importVideoBtn" class="ghost">Import Video</button>
+            <button id="importAudioBtn" class="ghost">Import Master Audio</button>
+            <button class="collapse-toggle" data-panel="bin" aria-expanded="false">▸</button>
+          </div>
         </div>
-      </section>
-
-      <aside id="padPanel" class="pad-panel">
-        <h2>Pad Settings</h2>
-        <div id="padPanelEmpty" class="panel-muted">Select a pad to edit its settings.</div>
-
-        <div id="padPanelContent" style="display:none;">
-          <div class="panel-group">
-            <label class="panel-field">
-              Lock Pad Settings
-              <div class="inline">
-                <input id="padLocked" type="checkbox">
-                <span class="panel-muted">Lock all settings for this pad.</span>
-              </div>
-            </label>
-          </div>
-
-          <div class="panel-group">
-            <label class="panel-field">
-              Name
-              <input id="padName" type="text">
-            </label>
-            <label class="panel-field">
-              Type
-              <select id="padType">
-                <option value="kick">Kick</option>
-                <option value="snare">Snare</option>
-                <option value="tom">Tom</option>
-                <option value="hihat">Hi-hat</option>
-                <option value="cymbal">Cymbal</option>
-                <option value="percussion">Percussion</option>
-                <option value="other">Other</option>
-              </select>
-            </label>
-            <label class="panel-field">
-              Input Channel (1-16)
-              <select id="padChannel"></select>
-            </label>
-            <label class="panel-field">
-              MIDI Note
-              <input id="padMidiNote" type="number" min="0" max="127">
-            </label>
-          </div>
-
-          <div class="panel-group">
-            <label class="panel-field">
-              Sensitivity
-              <input id="padSensitivity" type="range" min="0.3" max="4" step="0.05">
-            </label>
-            <label class="panel-field">
-              Input Boost (dB)
-              <input id="padInputBoost" type="number" min="-12" max="24" step="1">
-            </label>
-            <label class="panel-field">
-              Velocity Curve
-              <select id="padVelocityCurve">
-                <option value="linear">Linear</option>
-                <option value="soft">Soft</option>
-                <option value="hard">Hard</option>
-              </select>
-            </label>
-            <label class="panel-field">
-              Retrigger Mask Override (ms)
-              <input id="padMaskOverride" type="number" min="0" max="2000" placeholder="Use global">
-            </label>
-          </div>
-
-          <div class="panel-group">
-            <label class="panel-field">
-              Hi-hat Role
-              <select id="padHihatRole">
-                <option value="none">None</option>
-                <option value="open">Open Hat</option>
-                <option value="closed">Closed Hat</option>
-              </select>
-            </label>
-            <label class="panel-field">
-              Open Hat Choked By Closed
-              <select id="padHihatChoked">
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-            </label>
-            <label class="panel-field">
-              Closed Hat Choke Mode
-              <select id="padHihatChokeMode">
-                <option value="noteOff">Note Off</option>
-                <option value="noteOnZero">Note On 0</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="panel-group">
-            <div class="panel-field">
-              Audio Monitor
-              <div id="monitorWrap" class="monitor-wrap">
-                <canvas id="padWaveform" class="pad-visual" width="360" height="140"></canvas>
-                <div id="eqOverlay" class="eq-overlay">
-                  <div class="eq-handle" data-role="hp">HP</div>
-                  <div class="eq-handle" data-role="lp">LP</div>
-                </div>
-                <div id="thresholdTrack" class="threshold-track">
-                  <div id="thresholdHandle" class="threshold-handle"></div>
-                </div>
-              </div>
-            </div>
-            <label class="panel-field">
-              Waveform View
-              <select id="padWaveView">
-                <option value="time">Time</option>
-                <option value="rectified">Rectified</option>
-                <option value="envelope">Envelope</option>
-                <option value="fft">FFT</option>
-              </select>
-            </label>
-            <div class="panel-muted">Threshold: <span id="padThresholdValue">0.12</span></div>
-            <div class="panel-muted">HP: <span id="eqHpValue">-</span> | LP: <span id="eqLpValue">-</span></div>
-            <div class="panel-actions">
-              <button id="padLearn">Learn Threshold</button>
-              <button id="padRemove" class="danger">Remove Pad</button>
-            </div>
+        <div class="panel-body" data-panel-body="bin">
+          <div id="binList"></div>
+          <div class="panel-header">
+            <button id="insertToTrackBtn" class="primary">Insert to Selected Track</button>
           </div>
         </div>
       </aside>
-    </main>
-  </div>
 
-  <footer class="bottombar">
-    <div class="controls">
-      <label class="control">
-        Audio Input
-        <select id="audioDevice"></select>
-      </label>
-      <label class="control">
-        Channels
-        <div class="inline">
-          <input id="channelOverride" type="number" min="1" max="16" placeholder="Auto">
-          <span class="hint">Detected: <span id="detectedChannels">-</span></span>
+      <section id="monitor" class="panel">
+        <div class="panel-header">
+          <h3>Program Monitor</h3>
+          <span id="transportMode" class="status-pill off">Manual</span>
         </div>
-      </label>
-      <label class="control">
-        MIDI Output
-        <select id="midiOutput"></select>
-      </label>
-      <label class="control">
-        MIDI Channel
-        <input id="midiChannel" type="number" min="1" max="16" value="1">
-      </label>
-      <label class="control">
-        Note Length (ms)
-        <input id="noteLength" type="number" min="10" max="2000" value="40">
-      </label>
-      <label class="control">
-        Mask Time (ms)
-        <input id="maskTime" type="number" min="10" max="2000" value="80">
-      </label>
-      <label class="control">
-        Smart Hi-hat
-        <div class="inline">
-          <input id="smartHihat" type="checkbox">
-          <span class="hint">Combine open/closed</span>
+        <div id="monitorFrame">
+          <video id="programVideo" muted playsinline></video>
+          <div id="monitorPlaceholder">No video at playhead</div>
         </div>
-      </label>
-      <label class="control">
-        Hi-hat Window (ms)
-        <input id="smartHihatWindow" type="number" min="1" max="200" value="12">
-      </label>
-      <label class="control">
-        Theme
-        <select id="themeSelect">
-          <option value="dark">Dark</option>
-          <option value="neon">Neon</option>
-          <option value="ember">Ember</option>
-          <option value="ocean">Ocean</option>
-          <option value="forest">Forest</option>
-          <option value="dusk">Dusk</option>
-        </select>
-      </label>
-    </div>
-    <div class="actions">
-      <button id="savePreset">Save Preset</button>
-      <button id="loadPreset">Load Preset</button>
-    </div>
-  </footer>
+      </section>
 
-  <div id="addPadModal" class="modal">
-    <div class="modal-card">
-      <h3>Add Drum Piece</h3>
-      <label class="panel-field">
-        Name
-        <input id="newPadName" type="text" placeholder="New Piece">
-      </label>
-      <label class="panel-field">
-        Type
-        <select id="newPadType">
-          <option value="kick">Kick</option>
-          <option value="snare">Snare</option>
-          <option value="tom">Tom</option>
-          <option value="hihat">Hi-hat</option>
-          <option value="cymbal">Cymbal</option>
-          <option value="percussion">Percussion</option>
-          <option value="other">Other</option>
-        </select>
-      </label>
-      <label class="panel-field">
-        Input Channel
-        <select id="newPadChannel"></select>
-      </label>
-      <label class="panel-field">
-        MIDI Note
-        <input id="newPadMidiNote" type="number" min="0" max="127">
-      </label>
-      <div class="panel-actions">
-        <button id="createPad" class="primary">Create</button>
-        <button id="cancelCreate">Cancel</button>
+      <aside id="inspector" class="panel collapsible collapsed">
+        <div class="panel-header">
+          <h3>Inspector</h3>
+          <button class="collapse-toggle" data-panel="inspector" aria-expanded="false">▸</button>
+        </div>
+        <div class="panel-body" data-panel-body="inspector">
+          <div id="inspectorContent">Select a clip or placement.</div>
+          <div class="panel-header">
+            <h3>Project</h3>
+          </div>
+          <div class="project-actions">
+            <button id="chooseFolderBtn" class="ghost">Choose Project Folder</button>
+            <button id="saveProjectBtn" class="ghost">Save Project</button>
+            <button id="loadProjectBtn" class="ghost">Load Project JSON</button>
+            <input id="loadProjectInput" type="file" accept=".json" hidden />
+            <button id="relinkBtn" class="ghost">Relink Media</button>
+            <input id="relinkInput" type="file" multiple hidden />
+            <button id="downloadProjectBtn" class="ghost">Download Project JSON</button>
+            <button id="downloadClipsBtn" class="ghost">Download Recorded Clips</button>
+          </div>
+          <div class="panel-header">
+            <h3>Export</h3>
+          </div>
+          <div class="project-actions">
+            <button id="exportEdlBtn" class="ghost">Export Timeline JSON/EDL</button>
+            <button id="renderPreviewBtn" class="primary">Render Preview WebM</button>
+            <div id="exportNotes"></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="timelineSection">
+      <div id="timelineToolbar">
+        <button id="addTrackBtn" class="ghost">Add Track</button>
+        <button id="splitBtn" class="ghost">Split at Playhead</button>
+        <button id="deletePlacementBtn" class="ghost">Delete Placement</button>
       </div>
-    </div>
+      <div id="timelineBody">
+        <div id="trackHeaders"></div>
+        <div id="timelineScroll">
+          <div id="timelineInner">
+            <canvas id="ruler"></canvas>
+            <div id="playhead"></div>
+            <div id="tracksLane"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <input id="presetFile" type="file" accept="application/json" style="display:none;">
+  <input id="importVideoInput" type="file" accept="video/*" hidden />
+  <input id="importAudioInput" type="file" accept="audio/*" hidden />
 
   <script>
-    // GhostNote: single-file audio-to-MIDI drum brain.
     (() => {
-      "use strict";
+      'use strict';
 
-      const MAX_CHANNELS = 16;
-      const DEFAULT_NOTE_LENGTH = 40;
-      const DEFAULT_MASK = 80;
-      const THRESHOLD_MIN = 0.02;
-      const THRESHOLD_MAX = 1.5;
-      const HP_RANGE = { min: 20, max: 1000 };
-      const LP_RANGE = { min: 200, max: 20000 };
-      const Q_RANGE = { min: 0.2, max: 12 };
+      // Timecode utilities
+      const pad = (num, size = 2) => String(num).padStart(size, '0');
 
-      const TYPE_DEFAULT_NOTES = {
-        kick: 36,
-        snare: 38,
-        tom: 45,
-        hihat: 42,
-        cymbal: 49,
-        percussion: 39,
-        other: 35,
-      };
+      function secondsToSMPTE(seconds, fps) {
+        const safe = Math.max(0, seconds || 0);
+        const totalFrames = Math.floor(safe * fps + 1e-6);
+        const frames = totalFrames % fps;
+        const totalSeconds = Math.floor(totalFrames / fps);
+        const secs = totalSeconds % 60;
+        const mins = Math.floor(totalSeconds / 60) % 60;
+        const hours = Math.floor(totalSeconds / 3600);
+        return `${pad(hours)}:${pad(mins)}:${pad(secs)}:${pad(frames)}`;
+      }
 
-      const DEFAULT_PADS = [
-        { name: "Kick", type: "kick", midiNote: 36, inputChannel: 1, x: 30, y: 68 },
-        { name: "Snare", type: "snare", midiNote: 38, inputChannel: 2, x: 52, y: 60 },
-        { name: "Hi-hat Closed", type: "hihat", midiNote: 42, inputChannel: 3, x: 18, y: 40, hihatRole: "closed" },
-        { name: "Hi-hat Open", type: "hihat", midiNote: 46, inputChannel: 4, x: 30, y: 30, hihatRole: "open" },
-        { name: "Tom 1", type: "tom", midiNote: 48, inputChannel: 5, x: 44, y: 38 },
-        { name: "Tom 2", type: "tom", midiNote: 45, inputChannel: 6, x: 60, y: 38 },
-        { name: "Tom 3", type: "tom", midiNote: 43, inputChannel: 7, x: 72, y: 56 },
-        { name: "Crash", type: "cymbal", midiNote: 49, inputChannel: 8, x: 70, y: 24 },
-        { name: "Ride", type: "cymbal", midiNote: 51, inputChannel: 9, x: 86, y: 34 },
-      ];
+      function smpteToSeconds(tc, fps) {
+        if (!tc) return 0;
+        const parts = tc.trim().split(':').map(Number);
+        if (parts.length !== 4 || parts.some((part) => Number.isNaN(part))) return 0;
+        const [hours, mins, secs, frames] = parts;
+        return hours * 3600 + mins * 60 + secs + frames / fps;
+      }
 
-      const State = {
-        theme: "dark",
-        audioDeviceId: "",
-        midiOutputId: "",
-        midiOutputName: "",
-        midiChannel: 1,
-        noteLength: DEFAULT_NOTE_LENGTH,
-        maskTime: DEFAULT_MASK,
-        smartHihatEnabled: false,
-        smartHihatWindow: 12,
-        channelOverride: null,
-        detectedChannels: 0,
-        pads: [],
-        selectedPadId: null,
-      };
+      const RULER_HEIGHT = 28;
+      const TRACK_HEIGHT = 70;
+      const MIN_DURATION = 10;
+      const ZOOM_MIN = 20;
+      const ZOOM_MAX = 400;
 
-      const Runtime = {
-        audioContext: null,
-        stream: null,
-        splitter: null,
-        channelCount: 0,
-        padNodes: new Map(),
-        padElements: new Map(),
-        animationId: null,
-        midiAccess: null,
-        midiOutputs: [],
-        midiOutput: null,
-        warnings: new Map(),
-        dragging: null,
-        thresholdDrag: null,
-        eqDrag: null,
-        smartHihat: {
-          pendingOpen: null,
-          pendingOpenPadId: null,
-          pendingOpenTime: 0,
-          pendingOpenVelocity: 0,
-          lastClosedTime: 0,
+      const state = {
+        settings: {
+          fps: 30,
+          pxPerSecond: 120,
+          createdAt: new Date().toISOString(),
         },
-      };
-
-      const Dom = {
-        toggleAudio: document.getElementById("toggleAudio"),
-        audioDevice: document.getElementById("audioDevice"),
-        midiOutput: document.getElementById("midiOutput"),
-        channelOverride: document.getElementById("channelOverride"),
-        detectedChannels: document.getElementById("detectedChannels"),
-        midiChannel: document.getElementById("midiChannel"),
-        noteLength: document.getElementById("noteLength"),
-        maskTime: document.getElementById("maskTime"),
-        smartHihat: document.getElementById("smartHihat"),
-        smartHihatWindow: document.getElementById("smartHihatWindow"),
-        themeSelect: document.getElementById("themeSelect"),
-        savePreset: document.getElementById("savePreset"),
-        loadPreset: document.getElementById("loadPreset"),
-        kitStage: document.getElementById("kitStage"),
-        status: document.getElementById("status"),
-        addPad: document.getElementById("addPad"),
-        presetFile: document.getElementById("presetFile"),
-        padPanelEmpty: document.getElementById("padPanelEmpty"),
-        padPanelContent: document.getElementById("padPanelContent"),
-        padName: document.getElementById("padName"),
-        padType: document.getElementById("padType"),
-        padChannel: document.getElementById("padChannel"),
-        padMidiNote: document.getElementById("padMidiNote"),
-        padSensitivity: document.getElementById("padSensitivity"),
-        padInputBoost: document.getElementById("padInputBoost"),
-        padVelocityCurve: document.getElementById("padVelocityCurve"),
-        padMaskOverride: document.getElementById("padMaskOverride"),
-        padHihatRole: document.getElementById("padHihatRole"),
-        padHihatChoked: document.getElementById("padHihatChoked"),
-        padHihatChokeMode: document.getElementById("padHihatChokeMode"),
-        padLocked: document.getElementById("padLocked"),
-        padLearn: document.getElementById("padLearn"),
-        padRemove: document.getElementById("padRemove"),
-        monitorWrap: document.getElementById("monitorWrap"),
-        padWaveform: document.getElementById("padWaveform"),
-        padThresholdValue: document.getElementById("padThresholdValue"),
-        thresholdTrack: document.getElementById("thresholdTrack"),
-        thresholdHandle: document.getElementById("thresholdHandle"),
-        padWaveView: document.getElementById("padWaveView"),
-        eqOverlay: document.getElementById("eqOverlay"),
-        eqHpValue: document.getElementById("eqHpValue"),
-        eqLpValue: document.getElementById("eqLpValue"),
-        addPadModal: document.getElementById("addPadModal"),
-        newPadName: document.getElementById("newPadName"),
-        newPadType: document.getElementById("newPadType"),
-        newPadChannel: document.getElementById("newPadChannel"),
-        newPadMidiNote: document.getElementById("newPadMidiNote"),
-        createPad: document.getElementById("createPad"),
-        cancelCreate: document.getElementById("cancelCreate"),
-      };
-
-      const EqHandles = {
-        hp: Dom.eqOverlay.querySelector(".eq-handle[data-role='hp']"),
-        lp: Dom.eqOverlay.querySelector(".eq-handle[data-role='lp']"),
-      };
-
-      const waveCtx = Dom.padWaveform.getContext("2d");
-
-      function init() {
-        State.pads = DEFAULT_PADS.map((pad, index) => createPad({
-          id: `pad-${index + 1}`,
-          name: pad.name,
-          type: pad.type,
-          inputChannel: pad.inputChannel,
-          midiNote: pad.midiNote,
-          x: pad.x,
-          y: pad.y,
-          threshold: 0.12,
-          sensitivity: 1.2,
-          velocityCurve: "linear",
-          maskOverride: null,
-          hihatRole: pad.hihatRole || "none",
-          hihatChokedByClosed: pad.hihatRole === "open",
-          hihatChokeMode: "noteOff",
-          filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
-          settingsLocked: false,
-          protected: true,
-        }));
-
-        populateChannelOptions(Dom.padChannel);
-        populateChannelOptions(Dom.newPadChannel);
-
-        Dom.themeSelect.value = State.theme;
-        Dom.midiChannel.value = State.midiChannel;
-        Dom.noteLength.value = State.noteLength;
-        Dom.maskTime.value = State.maskTime;
-        Dom.smartHihat.checked = State.smartHihatEnabled;
-        Dom.smartHihatWindow.value = State.smartHihatWindow;
-
-        bindEvents();
-        renderPads();
-        refreshAudioDevices();
-        initMidi();
-        updateWarnings();
-        updateAudioToggle();
-      }
-
-      function bindEvents() {
-        Dom.themeSelect.addEventListener("change", (event) => setTheme(event.target.value));
-        Dom.toggleAudio.addEventListener("click", toggleAudio);
-        Dom.savePreset.addEventListener("click", savePreset);
-        Dom.loadPreset.addEventListener("click", () => Dom.presetFile.click());
-        Dom.presetFile.addEventListener("change", handlePresetLoad);
-        Dom.addPad.addEventListener("click", openAddPadModal);
-        Dom.cancelCreate.addEventListener("click", closeAddPadModal);
-        Dom.createPad.addEventListener("click", createNewPadFromModal);
-        Dom.newPadType.addEventListener("change", updateNewPadDefaults);
-
-        Dom.audioDevice.addEventListener("change", (event) => {
-          State.audioDeviceId = event.target.value;
-          if (Runtime.audioContext) {
-            restartAudio();
-          }
-        });
-
-        Dom.midiOutput.addEventListener("change", (event) => {
-          State.midiOutputId = event.target.value;
-          selectMidiOutputById(State.midiOutputId);
-        });
-
-        Dom.channelOverride.addEventListener("input", (event) => {
-          const value = parseInt(event.target.value, 10);
-          State.channelOverride = Number.isFinite(value) ? clamp(value, 1, MAX_CHANNELS) : null;
-          if (Runtime.audioContext) {
-            restartAudio();
-          }
-        });
-
-        Dom.midiChannel.addEventListener("input", (event) => {
-          const value = parseInt(event.target.value, 10);
-          State.midiChannel = clamp(value || 1, 1, 16);
-        });
-
-        Dom.noteLength.addEventListener("input", (event) => {
-          const value = parseInt(event.target.value, 10);
-          State.noteLength = clamp(value || DEFAULT_NOTE_LENGTH, 10, 2000);
-        });
-
-        Dom.maskTime.addEventListener("input", (event) => {
-          const value = parseInt(event.target.value, 10);
-          State.maskTime = clamp(value || DEFAULT_MASK, 10, 2000);
-        });
-
-        Dom.smartHihat.addEventListener("change", (event) => {
-          State.smartHihatEnabled = event.target.checked;
-          if (!State.smartHihatEnabled) {
-            clearSmartHihatPending();
-          }
-        });
-
-        Dom.smartHihatWindow.addEventListener("input", (event) => {
-          const value = parseInt(event.target.value, 10);
-          State.smartHihatWindow = clamp(value || 12, 1, 200);
-        });
-
-        Dom.kitStage.addEventListener("pointerdown", handlePadPointerDown);
-        window.addEventListener("pointermove", handlePadPointerMove);
-        window.addEventListener("pointerup", handlePadPointerUp);
-        window.addEventListener("resize", () => {
-          updatePadPositions();
-          resolveAllOverlaps();
-          const pad = getSelectedPad();
-          if (pad) {
-            updateEqHandles(pad);
-            updateThresholdHandle(pad);
-          }
-        });
-
-        Dom.padName.addEventListener("input", () => updateSelectedPad("name", Dom.padName.value));
-        Dom.padType.addEventListener("change", () => updateSelectedPad("type", Dom.padType.value, true));
-        Dom.padChannel.addEventListener("change", () => updateSelectedPad("inputChannel", parseInt(Dom.padChannel.value, 10), true));
-        Dom.padMidiNote.addEventListener("input", () => updateSelectedPad("midiNote", parseInt(Dom.padMidiNote.value, 10) || 0, false));
-        Dom.padSensitivity.addEventListener("input", () => updateSelectedPad("sensitivity", parseFloat(Dom.padSensitivity.value) || 1));
-        Dom.padInputBoost.addEventListener("input", () => updateSelectedPad("inputBoostDb", parseFloat(Dom.padInputBoost.value) || 0));
-        Dom.padVelocityCurve.addEventListener("change", () => updateSelectedPad("velocityCurve", Dom.padVelocityCurve.value));
-        Dom.padMaskOverride.addEventListener("input", () => {
-          const value = parseInt(Dom.padMaskOverride.value, 10);
-          updateSelectedPad("maskOverride", Number.isFinite(value) ? value : null);
-        });
-        Dom.padHihatRole.addEventListener("change", () => updateSelectedPad("hihatRole", Dom.padHihatRole.value));
-        Dom.padHihatChoked.addEventListener("change", () => updateSelectedPad("hihatChokedByClosed", Dom.padHihatChoked.value === "yes"));
-        Dom.padHihatChokeMode.addEventListener("change", () => updateSelectedPad("hihatChokeMode", Dom.padHihatChokeMode.value));
-        Dom.padLocked.addEventListener("change", () => togglePadLock(Dom.padLocked.checked));
-        Dom.padWaveView.addEventListener("change", () => updateSelectedPad("waveView", Dom.padWaveView.value));
-        Dom.padLearn.addEventListener("click", () => learnThreshold(getSelectedPad()));
-        Dom.padRemove.addEventListener("click", removeSelectedPad);
-
-        Dom.thresholdTrack.addEventListener("pointerdown", handleThresholdPointerDown);
-        Dom.thresholdHandle.addEventListener("pointerdown", handleThresholdPointerDown);
-        Dom.eqOverlay.addEventListener("pointerdown", handleEqPointerDown);
-      }
-
-      function toggleAudio() {
-        if (Runtime.audioContext) {
-          stopAudio();
-        } else {
-          startAudio();
-        }
-      }
-
-      function updateAudioToggle() {
-        if (Runtime.audioContext) {
-          Dom.toggleAudio.textContent = "Audio On";
-          Dom.toggleAudio.classList.remove("off");
-          Dom.toggleAudio.classList.add("on");
-        } else {
-          Dom.toggleAudio.textContent = "Audio Off";
-          Dom.toggleAudio.classList.remove("on");
-          Dom.toggleAudio.classList.add("off");
-        }
-      }
-
-      function createPad(data) {
-        const filter = normalizeFilter(data.filter);
-        return {
-          id: data.id || `pad-${crypto.randomUUID()}`,
-          name: data.name,
-          type: data.type,
-          inputChannel: data.inputChannel,
-          midiNote: data.midiNote,
-          threshold: clamp(data.threshold ?? 0.12, THRESHOLD_MIN, THRESHOLD_MAX),
-          sensitivity: data.sensitivity ?? 1.0,
-          velocityCurve: data.velocityCurve || "linear",
-          maskOverride: data.maskOverride ?? null,
-          hihatRole: data.hihatRole || "none",
-          hihatChokedByClosed: data.hihatChokedByClosed ?? false,
-          hihatChokeMode: data.hihatChokeMode || "noteOff",
-          enabled: data.enabled ?? true,
-          waveView: data.waveView || "time",
-          inputBoostDb: data.inputBoostDb ?? 0,
-          filter,
-          x: data.x ?? 50,
-          y: data.y ?? 50,
-          settingsLocked: data.settingsLocked ?? false,
-          protected: data.protected ?? false,
-        };
-      }
-
-      function normalizeFilter(filter = {}) {
-        return {
-          hp: clamp(filter.hp ?? 30, HP_RANGE.min, HP_RANGE.max),
-          lp: clamp(filter.lp ?? 12000, LP_RANGE.min, LP_RANGE.max),
-          hpQ: clamp(filter.hpQ ?? 0.7, Q_RANGE.min, Q_RANGE.max),
-          lpQ: clamp(filter.lpQ ?? 0.7, Q_RANGE.min, Q_RANGE.max),
-        };
-      }
-
-      function populateChannelOptions(select) {
-        select.innerHTML = "";
-        for (let i = 1; i <= MAX_CHANNELS; i += 1) {
-          const option = document.createElement("option");
-          option.value = i;
-          option.textContent = `${i}`;
-          select.appendChild(option);
-        }
-      }
-
-      function renderPads() {
-        Dom.kitStage.innerHTML = "";
-        Runtime.padElements.clear();
-        State.pads.forEach((pad, index) => {
-          const el = document.createElement("div");
-          el.className = "pad";
-          if (pad.id === State.selectedPadId) el.classList.add("selected");
-          if (!pad.enabled) el.classList.add("disabled");
-          el.dataset.id = pad.id;
-          el.dataset.type = pad.type;
-          el.style.animationDelay = `${index * 60}ms`;
-          const toggleLabel = pad.enabled ? "On" : "Off";
-          const toggleClass = pad.enabled ? "on" : "off";
-          el.innerHTML = `
-            <div class="pad-header">
-              <span>${escapeHtml(pad.name)}</span>
-            </div>
-            <div class="pad-meta">CH ${pad.inputChannel} | MIDI ${pad.midiNote}</div>
-            <div class="pad-meter"><span></span></div>
-            <button class="pad-toggle ${toggleClass}" data-action="toggle">${toggleLabel}</button>
-          `;
-          Dom.kitStage.appendChild(el);
-          Runtime.padElements.set(pad.id, el);
-          updatePadPosition(pad);
-        });
-        requestAnimationFrame(resolveAllOverlaps);
-      }
-
-      function updatePadPosition(pad) {
-        const el = Runtime.padElements.get(pad.id);
-        if (!el) return;
-        el.style.left = `${pad.x}%`;
-        el.style.top = `${pad.y}%`;
-      }
-
-      function updatePadPositions() {
-        State.pads.forEach(updatePadPosition);
-      }
-
-      function handlePadPointerDown(event) {
-        const padEl = event.target.closest(".pad");
-        if (!padEl) return;
-        const padId = padEl.dataset.id;
-        const button = event.target.closest("button");
-        selectPad(padId);
-        if (button) {
-          if (button.dataset.action === "toggle") {
-            togglePadEnabled(padId);
-          }
-          return;
-        }
-        Runtime.dragging = { id: padId, pointerId: event.pointerId };
-        padEl.classList.add("dragging");
-        padEl.setPointerCapture(event.pointerId);
-      }
-
-      function handlePadPointerMove(event) {
-        if (!Runtime.dragging) return;
-        const pad = getPad(Runtime.dragging.id);
-        const padEl = Runtime.padElements.get(pad.id);
-        const rect = Dom.kitStage.getBoundingClientRect();
-        if (!padEl) return;
-        const x = ((event.clientX - rect.left) / rect.width) * 100;
-        const y = ((event.clientY - rect.top) / rect.height) * 100;
-        const limits = getPadBounds(pad, padEl, rect);
-        pad.x = clamp(x, limits.minX, limits.maxX);
-        pad.y = clamp(y, limits.minY, limits.maxY);
-        updatePadPosition(pad);
-      }
-
-      function handlePadPointerUp() {
-        if (!Runtime.dragging) return;
-        const pad = getPad(Runtime.dragging.id);
-        const padEl = Runtime.padElements.get(Runtime.dragging.id);
-        if (padEl) padEl.classList.remove("dragging");
-        Runtime.dragging = null;
-        resolveAllOverlaps();
-      }
-
-      function selectPad(padId) {
-        State.selectedPadId = padId;
-        State.pads.forEach((pad) => {
-          const el = Runtime.padElements.get(pad.id);
-          if (el) el.classList.toggle("selected", pad.id === padId);
-        });
-        const pad = getSelectedPad();
-        if (!pad) return;
-        Dom.padPanelEmpty.style.display = "none";
-        Dom.padPanelContent.style.display = "block";
-        Dom.padName.value = pad.name;
-        Dom.padType.value = pad.type;
-        Dom.padChannel.value = pad.inputChannel;
-        Dom.padMidiNote.value = pad.midiNote;
-        Dom.padSensitivity.value = pad.sensitivity;
-        Dom.padInputBoost.value = pad.inputBoostDb;
-        Dom.padVelocityCurve.value = pad.velocityCurve;
-        Dom.padMaskOverride.value = pad.maskOverride ?? "";
-        Dom.padHihatRole.value = pad.hihatRole;
-        Dom.padHihatChoked.value = pad.hihatChokedByClosed ? "yes" : "no";
-        Dom.padHihatChokeMode.value = pad.hihatChokeMode;
-        Dom.padLocked.checked = pad.settingsLocked;
-        Dom.padWaveView.value = pad.waveView;
-        Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
-        Dom.padRemove.disabled = pad.protected;
-        updateEqHandles(pad);
-        updateThresholdHandle(pad);
-        applyPadLockState(pad);
-      }
-
-      function updateSelectedPad(key, value, requiresAudioUpdate = false) {
-        const pad = getSelectedPad();
-        if (!pad) return;
-        if (pad.settingsLocked) return;
-        pad[key] = value;
-        if (key === "type") {
-          const el = Runtime.padElements.get(pad.id);
-          if (el) el.dataset.type = value;
-        }
-        updatePadElement(pad);
-        if (key === "waveView") {
-          updateThresholdHandle(pad);
-        }
-        if (key === "inputBoostDb") {
-          updatePadGain(pad);
-        }
-        if (requiresAudioUpdate) {
-          rebuildPadAudio(pad);
-        }
-        updateWarnings();
-      }
-
-      function togglePadLock(locked) {
-        const pad = getSelectedPad();
-        if (!pad) return;
-        pad.settingsLocked = locked;
-        applyPadLockState(pad);
-      }
-
-      function applyPadLockState(pad) {
-        const disabled = pad.settingsLocked;
-        [
-          Dom.padName,
-          Dom.padType,
-          Dom.padChannel,
-          Dom.padMidiNote,
-          Dom.padSensitivity,
-          Dom.padInputBoost,
-          Dom.padVelocityCurve,
-          Dom.padMaskOverride,
-          Dom.padHihatRole,
-          Dom.padHihatChoked,
-          Dom.padHihatChokeMode,
-          Dom.padWaveView,
-          Dom.padLearn,
-        ].forEach((control) => {
-          control.disabled = disabled;
-        });
-        Dom.padRemove.disabled = pad.protected || disabled;
-        Dom.thresholdTrack.classList.toggle("disabled", disabled);
-        Dom.eqOverlay.classList.toggle("disabled", disabled);
-      }
-
-      function updatePadElement(pad) {
-        const el = Runtime.padElements.get(pad.id);
-        if (!el) return;
-        const header = el.querySelector(".pad-header span");
-        const meta = el.querySelector(".pad-meta");
-        const toggle = el.querySelector(".pad-toggle");
-        if (header) header.textContent = pad.name;
-        if (meta) meta.textContent = `CH ${pad.inputChannel} | MIDI ${pad.midiNote}`;
-        if (toggle) {
-          toggle.textContent = pad.enabled ? "On" : "Off";
-          toggle.classList.toggle("on", pad.enabled);
-          toggle.classList.toggle("off", !pad.enabled);
-        }
-        el.classList.toggle("disabled", !pad.enabled);
-      }
-
-      function togglePadEnabled(padId) {
-        const pad = getPad(padId);
-        if (!pad) return;
-        pad.enabled = !pad.enabled;
-        updatePadElement(pad);
-      }
-
-      function getPad(id) {
-        return State.pads.find((pad) => pad.id === id);
-      }
-
-      function getSelectedPad() {
-        return getPad(State.selectedPadId);
-      }
-
-      function removeSelectedPad() {
-        const pad = getSelectedPad();
-        if (!pad || pad.protected || pad.settingsLocked) return;
-        State.pads = State.pads.filter((item) => item.id !== pad.id);
-        removePadAudio(pad.id);
-        renderPads();
-        State.selectedPadId = null;
-        Dom.padPanelEmpty.style.display = "block";
-        Dom.padPanelContent.style.display = "none";
-      }
-
-      function openAddPadModal() {
-        Dom.addPadModal.classList.add("active");
-        Dom.newPadName.value = "";
-        Dom.newPadType.value = "tom";
-        populateChannelOptions(Dom.newPadChannel);
-        Dom.newPadChannel.value = getNextAvailableChannel();
-        updateNewPadDefaults();
-      }
-
-      function closeAddPadModal() {
-        Dom.addPadModal.classList.remove("active");
-      }
-
-      function updateNewPadDefaults() {
-        const type = Dom.newPadType.value;
-        Dom.newPadMidiNote.value = TYPE_DEFAULT_NOTES[type] || 35;
-      }
-
-      function createNewPadFromModal() {
-        const name = Dom.newPadName.value.trim() || "New Piece";
-        const type = Dom.newPadType.value;
-        const inputChannel = parseInt(Dom.newPadChannel.value, 10) || 1;
-        const midiNote = parseInt(Dom.newPadMidiNote.value, 10) || TYPE_DEFAULT_NOTES[type] || 35;
-        const pad = createPad({
-          name,
-          type,
-          inputChannel,
-          midiNote,
-          threshold: 0.12,
-          sensitivity: 1.1,
-          velocityCurve: "linear",
-          filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
-          x: 50 + (Math.random() * 10 - 5),
-          y: 50 + (Math.random() * 10 - 5),
-        });
-        State.pads.push(pad);
-        renderPads();
-        if (Runtime.audioContext) {
-          buildPadAudio(pad);
-        }
-        closeAddPadModal();
-        updateWarnings();
-      }
-
-      function getNextAvailableChannel() {
-        const used = new Set(State.pads.map((pad) => pad.inputChannel));
-        for (let i = 1; i <= MAX_CHANNELS; i += 1) {
-          if (!used.has(i)) return i;
-        }
-        return 1;
-      }
-
-      async function refreshAudioDevices() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const inputs = devices.filter((device) => device.kind === "audioinput");
-        Dom.audioDevice.innerHTML = "";
-        inputs.forEach((device, index) => {
-          const option = document.createElement("option");
-          option.value = device.deviceId;
-          option.textContent = device.label || `Input ${index + 1}`;
-          Dom.audioDevice.appendChild(option);
-        });
-        if (inputs.length === 0) {
-          Dom.audioDevice.innerHTML = "<option value=\"\">No inputs</option>";
-        }
-        if (!State.audioDeviceId && inputs[0]) {
-          State.audioDeviceId = inputs[0].deviceId;
-        }
-        Dom.audioDevice.value = State.audioDeviceId;
-      }
-
-      async function startAudio() {
-        stopAudio();
-        try {
-          const constraints = {
-            audio: {
-              deviceId: State.audioDeviceId ? { exact: State.audioDeviceId } : undefined,
-              channelCount: { ideal: MAX_CHANNELS },
-              echoCancellation: false,
-              noiseSuppression: false,
-              autoGainControl: false,
-            },
-          };
-          Runtime.stream = await navigator.mediaDevices.getUserMedia(constraints);
-          Runtime.audioContext = new AudioContext();
-          const source = Runtime.audioContext.createMediaStreamSource(Runtime.stream);
-          const settings = Runtime.stream.getAudioTracks()[0].getSettings();
-          State.detectedChannels = settings.channelCount || MAX_CHANNELS;
-          Dom.detectedChannels.textContent = State.detectedChannels;
-          const desiredChannels = clamp(State.channelOverride || State.detectedChannels || MAX_CHANNELS, 1, MAX_CHANNELS);
-          Runtime.channelCount = desiredChannels;
-          Runtime.splitter = Runtime.audioContext.createChannelSplitter(desiredChannels);
-          source.connect(Runtime.splitter);
-          State.pads.forEach((pad) => buildPadAudio(pad));
-          startVisuals();
-          clearWarning("audio");
-          updateWarnings();
-          updateAudioToggle();
-          await refreshAudioDevices();
-        } catch (error) {
-          setWarning("audio", "Audio permission denied or unavailable.");
-          updateWarnings();
-          updateAudioToggle();
-        }
-      }
-
-      function stopAudio() {
-        if (Runtime.animationId) {
-          cancelAnimationFrame(Runtime.animationId);
-          Runtime.animationId = null;
-        }
-        Runtime.padNodes.forEach((node) => {
-          node.processor.disconnect();
-          node.analyser.disconnect();
-          node.gain.disconnect();
-          node.lowpass.disconnect();
-          node.highpass.disconnect();
-          node.mute.disconnect();
-        });
-        Runtime.padNodes.clear();
-        clearSmartHihatPending();
-        if (Runtime.splitter) {
-          Runtime.splitter.disconnect();
-          Runtime.splitter = null;
-        }
-        if (Runtime.audioContext) {
-          Runtime.audioContext.close();
-          Runtime.audioContext = null;
-        }
-        if (Runtime.stream) {
-          Runtime.stream.getTracks().forEach((track) => track.stop());
-          Runtime.stream = null;
-        }
-        updateAudioToggle();
-      }
-
-      function restartAudio() {
-        stopAudio();
-        startAudio();
-      }
-
-      function buildPadAudio(pad) {
-        if (!Runtime.audioContext || !Runtime.splitter) return;
-        const ctx = Runtime.audioContext;
-        const inputIndex = clamp(pad.inputChannel - 1, 0, Runtime.channelCount - 1);
-
-        const highpass = ctx.createBiquadFilter();
-        highpass.type = "highpass";
-        highpass.frequency.value = pad.filter.hp;
-        highpass.Q.value = pad.filter.hpQ;
-
-        const lowpass = ctx.createBiquadFilter();
-        lowpass.type = "lowpass";
-        lowpass.frequency.value = pad.filter.lp;
-        lowpass.Q.value = pad.filter.lpQ;
-
-        const gain = ctx.createGain();
-        gain.gain.value = dbToGain(pad.inputBoostDb);
-
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 256;
-
-        // ScriptProcessorNode keeps everything in a single file while remaining widely supported.
-        const processor = ctx.createScriptProcessor(256, 1, 1);
-        const mute = ctx.createGain();
-        mute.gain.value = 0;
-
-        Runtime.splitter.connect(highpass, inputIndex);
-        highpass.connect(lowpass);
-        lowpass.connect(gain);
-        gain.connect(analyser);
-        analyser.connect(processor);
-        processor.connect(mute);
-        mute.connect(ctx.destination);
-
-        const runtime = {
-          highpass,
-          lowpass,
-          gain,
-          analyser,
-          processor,
-          mute,
-          inputIndex,
-          lastTriggerTime: 0,
-          lastPeak: 0,
-          meter: 0,
-          noteOffTimer: null,
-          activeNote: null,
-          learn: { active: false, max: 0, endTime: 0 },
-          waveData: new Uint8Array(analyser.fftSize),
-          freqData: new Uint8Array(analyser.frequencyBinCount),
-          fftHold: new Float32Array(analyser.frequencyBinCount),
-          displayData: new Float32Array(analyser.fftSize),
-          lastView: "time",
-          peakHold: 0,
-          displayGain: 1,
-        };
-
-        processor.onaudioprocess = (event) => {
-          const input = event.inputBuffer.getChannelData(0);
-          let peak = 0;
-          for (let i = 0; i < input.length; i += 1) {
-            const abs = Math.abs(input[i]);
-            if (abs > peak) peak = abs;
-          }
-          runtime.lastPeak = peak;
-          runtime.meter = Math.max(peak, runtime.meter * 0.92);
-
-          const nowMs = Runtime.audioContext.currentTime * 1000;
-          if (runtime.learn.active) {
-            runtime.learn.max = Math.max(runtime.learn.max, peak);
-            if (nowMs > runtime.learn.endTime) {
-              pad.threshold = clamp(runtime.learn.max * 0.6, THRESHOLD_MIN, THRESHOLD_MAX);
-              runtime.learn.active = false;
-              if (State.selectedPadId === pad.id) {
-                Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
-                updateThresholdHandle(pad);
-              }
-            }
-          }
-
-          const mask = Number.isFinite(pad.maskOverride) ? pad.maskOverride : State.maskTime;
-          if (pad.enabled && peak >= pad.threshold && nowMs - runtime.lastTriggerTime > mask) {
-            runtime.lastTriggerTime = nowMs;
-            triggerPad(pad, peak);
-          }
-        };
-
-        Runtime.padNodes.set(pad.id, runtime);
-      }
-
-      function rebuildPadAudio(pad) {
-        if (!Runtime.audioContext) return;
-        removePadAudio(pad.id);
-        buildPadAudio(pad);
-      }
-
-      function removePadAudio(padId) {
-        const runtime = Runtime.padNodes.get(padId);
-        if (!runtime) return;
-        runtime.processor.disconnect();
-        runtime.analyser.disconnect();
-        runtime.gain.disconnect();
-        runtime.lowpass.disconnect();
-        runtime.highpass.disconnect();
-        runtime.mute.disconnect();
-        Runtime.padNodes.delete(padId);
-      }
-
-      function updateFilterNodes(pad) {
-        const runtime = Runtime.padNodes.get(pad.id);
-        if (!runtime || !Runtime.audioContext) return;
-        const ctx = Runtime.audioContext;
-        runtime.highpass.frequency.setTargetAtTime(pad.filter.hp, ctx.currentTime, 0.01);
-        runtime.highpass.Q.value = pad.filter.hpQ;
-        runtime.lowpass.frequency.setTargetAtTime(pad.filter.lp, ctx.currentTime, 0.01);
-        runtime.lowpass.Q.value = pad.filter.lpQ;
-      }
-
-      function updatePadGain(pad) {
-        const runtime = Runtime.padNodes.get(pad.id);
-        if (!runtime || !Runtime.audioContext) return;
-        const ctx = Runtime.audioContext;
-        const target = dbToGain(pad.inputBoostDb);
-        runtime.gain.gain.setTargetAtTime(target, ctx.currentTime, 0.01);
-      }
-
-      function triggerPad(pad, peak) {
-        const velocity = calculateVelocity(peak, pad.sensitivity, pad.velocityCurve);
-        const channel = State.midiChannel;
-        if (State.smartHihatEnabled && (pad.hihatRole === "open" || pad.hihatRole === "closed")) {
-          const nowMs = Runtime.audioContext ? Runtime.audioContext.currentTime * 1000 : performance.now();
-          const windowMs = State.smartHihatWindow;
-          const smart = Runtime.smartHihat;
-          if (pad.hihatRole === "open") {
-            if (smart.lastClosedTime && nowMs - smart.lastClosedTime <= windowMs) {
-              return;
-            }
-            clearSmartHihatPending();
-            smart.pendingOpenPadId = pad.id;
-            smart.pendingOpenTime = nowMs;
-            smart.pendingOpenVelocity = velocity;
-            smart.pendingOpen = setTimeout(() => {
-              smart.pendingOpen = null;
-              if (!pad.enabled) return;
-              sendNote(pad, smart.pendingOpenVelocity, channel);
-            }, windowMs);
-            return;
-          }
-          if (pad.hihatRole === "closed") {
-            smart.lastClosedTime = nowMs;
-            if (smart.pendingOpen && nowMs - smart.pendingOpenTime <= windowMs) {
-              clearSmartHihatPending();
-            }
-          }
-        }
-        if (pad.hihatRole === "closed") {
-          chokeOpenHats(pad);
-        }
-        pulsePad(pad.id);
-        sendNote(pad, velocity, channel);
-      }
-
-      function clearSmartHihatPending() {
-        const smart = Runtime.smartHihat;
-        if (smart.pendingOpen) {
-          clearTimeout(smart.pendingOpen);
-          smart.pendingOpen = null;
-        }
-        smart.pendingOpenPadId = null;
-        smart.pendingOpenTime = 0;
-        smart.pendingOpenVelocity = 0;
-      }
-
-      function pulsePad(padId) {
-        const el = Runtime.padElements.get(padId);
-        if (!el) return;
-        el.classList.remove("pulse");
-        void el.offsetWidth;
-        el.classList.add("pulse");
-      }
-
-      function calculateVelocity(peak, sensitivity, curve) {
-        let value = clamp(peak * sensitivity, 0, 1);
-        if (curve === "soft") {
-          value = Math.sqrt(value);
-        } else if (curve === "hard") {
-          value = value * value;
-        }
-        return clamp(Math.round(value * 127), 1, 127);
-      }
-
-      function sendNote(pad, velocity, channel) {
-        const runtime = Runtime.padNodes.get(pad.id);
-        if (!runtime) return;
-        if (runtime.noteOffTimer) {
-          clearTimeout(runtime.noteOffTimer);
-        }
-        sendMidiNoteOn(pad.midiNote, velocity, channel);
-        runtime.activeNote = pad.midiNote;
-        runtime.noteOffTimer = setTimeout(() => {
-          sendMidiNoteOff(pad.midiNote, channel);
-          runtime.activeNote = null;
-        }, State.noteLength);
-      }
-
-      function chokeOpenHats(triggerPad) {
-        State.pads.forEach((pad) => {
-          if (pad.hihatRole !== "open" || !pad.hihatChokedByClosed) return;
-          const runtime = Runtime.padNodes.get(pad.id);
-          if (!runtime || !runtime.activeNote) return;
-          if (pad.hihatChokeMode === "noteOnZero" || triggerPad.hihatChokeMode === "noteOnZero") {
-            sendMidiNoteOn(runtime.activeNote, 0, State.midiChannel);
-          } else {
-            sendMidiNoteOff(runtime.activeNote, State.midiChannel);
-          }
-          if (runtime.noteOffTimer) clearTimeout(runtime.noteOffTimer);
-          runtime.activeNote = null;
-        });
-      }
-
-      function learnThreshold(pad) {
-        if (!pad || pad.settingsLocked) return;
-        const runtime = Runtime.padNodes.get(pad.id);
-        if (!runtime) return;
-        runtime.learn.active = true;
-        runtime.learn.max = 0;
-        runtime.learn.endTime = Runtime.audioContext.currentTime * 1000 + 1500;
-      }
-
-      function startVisuals() {
-        if (Runtime.animationId) cancelAnimationFrame(Runtime.animationId);
-        const draw = () => {
-          Runtime.animationId = requestAnimationFrame(draw);
-          State.pads.forEach((pad) => {
-            const runtime = Runtime.padNodes.get(pad.id);
-            const el = Runtime.padElements.get(pad.id);
-            if (!runtime || !el) return;
-            const meter = el.querySelector(".pad-meter span");
-            if (meter) {
-              meter.style.transform = `scaleX(${clamp(runtime.meter * 1.4, 0, 1)})`;
-            }
-          });
-
-          const selected = getSelectedPad();
-          if (!selected) {
-            waveCtx.clearRect(0, 0, Dom.padWaveform.width, Dom.padWaveform.height);
-            Dom.eqOverlay.style.display = "none";
-            Dom.thresholdTrack.style.display = "none";
-            return;
-          }
-          Dom.eqOverlay.style.display = "block";
-          Dom.thresholdTrack.style.display = "flex";
-          const runtime = Runtime.padNodes.get(selected.id);
-          if (!runtime) return;
-          drawWaveform(selected, runtime);
-        };
-        draw();
-      }
-
-      function drawWaveform(pad, runtime) {
-        const width = Dom.padWaveform.width;
-        const height = Dom.padWaveform.height;
-        const view = pad.waveView || "time";
-        if (runtime.lastView !== view) {
-          runtime.displayData.fill(0);
-          runtime.fftHold.fill(0);
-          runtime.displayGain = 1;
-          runtime.lastView = view;
-        }
-        runtime.analyser.getByteTimeDomainData(runtime.waveData);
-        waveCtx.clearRect(0, 0, width, height);
-        waveCtx.fillStyle = "rgba(0,0,0,0.2)";
-        waveCtx.fillRect(0, 0, width, height);
-        waveCtx.strokeStyle = "rgba(255,255,255,0.12)";
-        waveCtx.lineWidth = 1;
-        for (let i = 1; i < 4; i += 1) {
-          const x = (i / 4) * width;
-          const y = (i / 4) * height;
-          waveCtx.beginPath();
-          waveCtx.moveTo(x, 0);
-          waveCtx.lineTo(x, height);
-          waveCtx.stroke();
-          waveCtx.beginPath();
-          waveCtx.moveTo(0, y);
-          waveCtx.lineTo(width, y);
-          waveCtx.stroke();
-        }
-
-        waveCtx.save();
-        waveCtx.lineWidth = 1.6;
-        waveCtx.globalAlpha = 0.35;
-        waveCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--accent-2").trim();
-        waveCtx.beginPath();
-        const minFreq = 20;
-        const maxFreq = 20000;
-        for (let i = 0; i <= width; i += 1) {
-          const ratio = i / width;
-          const freq = minFreq * Math.pow(maxFreq / minFreq, ratio);
-          const hpGain = freq / Math.sqrt(freq * freq + pad.filter.hp * pad.filter.hp);
-          const lpGain = pad.filter.lp / Math.sqrt(freq * freq + pad.filter.lp * pad.filter.lp);
-          const gain = hpGain * lpGain;
-          const y = height - gain * (height * 0.8) - height * 0.1;
-          if (i === 0) waveCtx.moveTo(i, y);
-          else waveCtx.lineTo(i, y);
-        }
-        waveCtx.stroke();
-        waveCtx.restore();
-
-        waveCtx.lineWidth = 2;
-        waveCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue("--wave");
-        waveCtx.beginPath();
-        const timeDecay = 0.92;
-        const rectDecay = 0.94;
-        const envDecay = 0.97;
-        let maxDisplay = 0.001;
-        if (view === "fft") {
-          runtime.analyser.getByteFrequencyData(runtime.freqData);
-          for (let i = 0; i < runtime.freqData.length; i += 1) {
-            const value = runtime.freqData[i] / 255;
-            runtime.fftHold[i] = Math.max(value, runtime.fftHold[i] * 0.9);
-            maxDisplay = Math.max(maxDisplay, runtime.fftHold[i]);
-          }
-          const targetGain = clamp(1 / maxDisplay, 1, 3);
-          runtime.displayGain = runtime.displayGain * 0.9 + targetGain * 0.1;
-          const sampleRate = Runtime.audioContext ? Runtime.audioContext.sampleRate : 44100;
-          const minFreq = 20;
-          const maxFreq = sampleRate / 2;
-          const logDenom = Math.log10(maxFreq / minFreq);
-          for (let i = 0; i < runtime.fftHold.length; i += 1) {
-            const freq = (i / runtime.fftHold.length) * maxFreq;
-            const x = freq <= minFreq ? 0 : (Math.log10(freq / minFreq) / logDenom) * width;
-            const value = clamp(runtime.fftHold[i] * runtime.displayGain, 0, 1);
-            const y = height - value * height;
-            if (i === 0) waveCtx.moveTo(x, y);
-            else waveCtx.lineTo(x, y);
-          }
-        } else {
-          for (let i = 0; i < runtime.waveData.length; i += 1) {
-            const sample = (runtime.waveData[i] - 128) / 128;
-            if (view === "rectified") {
-              const rectified = Math.abs(sample);
-              runtime.displayData[i] = Math.max(rectified, runtime.displayData[i] * rectDecay);
-              maxDisplay = Math.max(maxDisplay, runtime.displayData[i]);
-            } else if (view === "envelope") {
-              const rectified = Math.abs(sample);
-              runtime.displayData[i] = Math.max(rectified, runtime.displayData[i] * envDecay);
-              maxDisplay = Math.max(maxDisplay, runtime.displayData[i]);
-            } else {
-              const prev = runtime.displayData[i] * timeDecay;
-              const next = Math.abs(sample) >= Math.abs(prev) ? sample : prev;
-              runtime.displayData[i] = next;
-              maxDisplay = Math.max(maxDisplay, Math.abs(next));
-            }
-          }
-          const targetGain = clamp(1 / maxDisplay, 1, 3);
-          runtime.displayGain = runtime.displayGain * 0.88 + targetGain * 0.12;
-
-          for (let i = 0; i < runtime.displayData.length; i += 1) {
-            const x = (i / runtime.displayData.length) * width;
-            let y = 0;
-            if (view === "rectified" || view === "envelope") {
-              const value = clamp(runtime.displayData[i] * runtime.displayGain, 0, 1);
-              y = height - value * height;
-            } else {
-              const value = clamp(runtime.displayData[i] * runtime.displayGain, -1, 1);
-              y = value * (height / 2) + height / 2;
-            }
-            if (i === 0) waveCtx.moveTo(x, y);
-            else waveCtx.lineTo(x, y);
-          }
-        }
-        waveCtx.stroke();
-
-        waveCtx.strokeStyle = "rgba(255,255,255,0.4)";
-        waveCtx.beginPath();
-        const thresholdNorm = clamp(pad.threshold / THRESHOLD_MAX, 0, 1);
-        if (view === "time") {
-          const center = height / 2;
-          const thresholdOffset = thresholdNorm * center;
-          waveCtx.moveTo(0, center - thresholdOffset);
-          waveCtx.lineTo(width, center - thresholdOffset);
-          waveCtx.moveTo(0, center + thresholdOffset);
-          waveCtx.lineTo(width, center + thresholdOffset);
-        } else {
-          const y = height - thresholdNorm * height;
-          waveCtx.moveTo(0, y);
-          waveCtx.lineTo(width, y);
-        }
-        waveCtx.stroke();
-
-        runtime.peakHold = Math.max(runtime.lastPeak, runtime.peakHold * 0.92);
-        const peakHeight = clamp(runtime.peakHold, 0, 1) * (height / 2);
-        const center = height / 2;
-        waveCtx.save();
-        waveCtx.globalAlpha = 0.45;
-        waveCtx.fillStyle = getComputedStyle(document.body).getPropertyValue("--accent").trim();
-        waveCtx.fillRect(width - 6, center - peakHeight, 4, peakHeight * 2);
-        waveCtx.restore();
-
-        updateEqHandles(pad);
-        updateThresholdHandle(pad);
-      }
-
-      function updateEqHandles(pad) {
-        const gridRect = Dom.eqOverlay.getBoundingClientRect();
-        if (!gridRect.width || !gridRect.height) return;
-        const hpX = mapToRange(pad.filter.hp, HP_RANGE.min, HP_RANGE.max, 0, gridRect.width);
-        const lpX = mapToRange(pad.filter.lp, LP_RANGE.min, LP_RANGE.max, 0, gridRect.width);
-        const hpY = mapToRange(pad.filter.hpQ, Q_RANGE.min, Q_RANGE.max, gridRect.height, 0);
-        const lpY = mapToRange(pad.filter.lpQ, Q_RANGE.min, Q_RANGE.max, gridRect.height, 0);
-        EqHandles.hp.style.left = `${hpX}px`;
-        EqHandles.hp.style.top = `${hpY}px`;
-        EqHandles.lp.style.left = `${lpX}px`;
-        EqHandles.lp.style.top = `${lpY}px`;
-        Dom.eqHpValue.textContent = `${Math.round(pad.filter.hp)} Hz / Q ${pad.filter.hpQ.toFixed(2)}`;
-        Dom.eqLpValue.textContent = `${Math.round(pad.filter.lp)} Hz / Q ${pad.filter.lpQ.toFixed(2)}`;
-      }
-
-      function updateThresholdHandle(pad) {
-        const rect = Dom.thresholdTrack.getBoundingClientRect();
-        if (!rect.height) return;
-        const thresholdNorm = clamp(pad.threshold / THRESHOLD_MAX, 0, 1);
-        const view = pad.waveView || "time";
-        if (view === "time") {
-          const center = rect.height / 2;
-          const offset = thresholdNorm * center;
-          Dom.thresholdHandle.style.top = `${center - offset}px`;
-        } else {
-          Dom.thresholdHandle.style.top = `${rect.height - thresholdNorm * rect.height}px`;
-        }
-      }
-
-      function handleThresholdPointerDown(event) {
-        const pad = getSelectedPad();
-        if (!pad || pad.settingsLocked) return;
-        Runtime.thresholdDrag = true;
-        updateThresholdFromPointer(event);
-        window.addEventListener("pointermove", handleThresholdPointerMove);
-        window.addEventListener("pointerup", handleThresholdPointerUp, { once: true });
-      }
-
-      function handleThresholdPointerMove(event) {
-        if (!Runtime.thresholdDrag) return;
-        updateThresholdFromPointer(event);
-      }
-
-      function handleThresholdPointerUp() {
-        Runtime.thresholdDrag = null;
-        window.removeEventListener("pointermove", handleThresholdPointerMove);
-      }
-
-      function updateThresholdFromPointer(event) {
-        const pad = getSelectedPad();
-        if (!pad) return;
-        const rect = Dom.thresholdTrack.getBoundingClientRect();
-        const y = clamp(event.clientY - rect.top, 0, rect.height);
-        if ((pad.waveView || "time") === "time") {
-          const center = rect.height / 2;
-          const distance = Math.abs(y - center);
-          pad.threshold = clamp((distance / center) * THRESHOLD_MAX, THRESHOLD_MIN, THRESHOLD_MAX);
-        } else {
-          pad.threshold = clamp(((rect.height - y) / rect.height) * THRESHOLD_MAX, THRESHOLD_MIN, THRESHOLD_MAX);
-        }
-        Dom.padThresholdValue.textContent = pad.threshold.toFixed(2);
-        updateThresholdHandle(pad);
-      }
-
-      function handleEqPointerDown(event) {
-        const pad = getSelectedPad();
-        if (!pad || pad.settingsLocked) return;
-        const handle = event.target.closest(".eq-handle");
-        if (!handle) return;
-        Runtime.eqDrag = { role: handle.dataset.role };
-        updateEqFromPointer(event);
-        window.addEventListener("pointermove", handleEqPointerMove);
-        window.addEventListener("pointerup", handleEqPointerUp, { once: true });
-      }
-
-      function handleEqPointerMove(event) {
-        if (!Runtime.eqDrag) return;
-        updateEqFromPointer(event);
-      }
-
-      function handleEqPointerUp() {
-        Runtime.eqDrag = null;
-        window.removeEventListener("pointermove", handleEqPointerMove);
-      }
-
-      function updateEqFromPointer(event) {
-        const pad = getSelectedPad();
-        if (!pad || !Runtime.eqDrag) return;
-        const rect = Dom.eqOverlay.getBoundingClientRect();
-        const x = clamp(event.clientX - rect.left, 0, rect.width);
-        const y = clamp(event.clientY - rect.top, 0, rect.height);
-        const q = clamp(mapToRange(y, rect.height, 0, Q_RANGE.min, Q_RANGE.max), Q_RANGE.min, Q_RANGE.max);
-        if (Runtime.eqDrag.role === "hp") {
-          pad.filter.hp = clamp(mapToRange(x, 0, rect.width, HP_RANGE.min, HP_RANGE.max), HP_RANGE.min, HP_RANGE.max);
-          pad.filter.hpQ = q;
-        } else {
-          pad.filter.lp = clamp(mapToRange(x, 0, rect.width, LP_RANGE.min, LP_RANGE.max), LP_RANGE.min, LP_RANGE.max);
-          pad.filter.lpQ = q;
-        }
-        updateFilterNodes(pad);
-        updateEqHandles(pad);
-      }
-
-      async function initMidi() {
-        if (!navigator.requestMIDIAccess) {
-          setWarning("midi", "Web MIDI is not available in this browser.");
-          updateWarnings();
-          return;
-        }
-        try {
-          Runtime.midiAccess = await navigator.requestMIDIAccess();
-          Runtime.midiOutputs = Array.from(Runtime.midiAccess.outputs.values());
-          Dom.midiOutput.innerHTML = "";
-          Runtime.midiOutputs.forEach((output) => {
-            const option = document.createElement("option");
-            option.value = output.id;
-            option.textContent = output.name || output.id;
-            Dom.midiOutput.appendChild(option);
-          });
-          if (Runtime.midiOutputs.length === 0) {
-            Dom.midiOutput.innerHTML = "<option value=\"\">No outputs</option>";
-            setWarning("midiOutputs", "No MIDI outputs detected.");
-          } else {
-            clearWarning("midiOutputs");
-          }
-          selectPreferredMidiOutput();
-          updateWarnings();
-        } catch (error) {
-          setWarning("midi", "MIDI permission denied or unavailable.");
-          updateWarnings();
-        }
-      }
-
-      function selectPreferredMidiOutput() {
-        const preferred = Runtime.midiOutputs.find((output) => /logic pro virtual in/i.test(output.name || ""));
-        const target = preferred || Runtime.midiOutputs[0];
-        if (target) {
-          State.midiOutputId = target.id;
-          State.midiOutputName = target.name || "";
-          Dom.midiOutput.value = target.id;
-          selectMidiOutputById(target.id);
-        }
-      }
-
-      function selectMidiOutputById(id) {
-        Runtime.midiOutput = Runtime.midiOutputs.find((output) => output.id === id) || null;
-        if (!Runtime.midiOutput && Runtime.midiOutputs.length) {
-          Runtime.midiOutput = Runtime.midiOutputs[0];
-        }
-        if (!Runtime.midiOutput) {
-          setWarning("midiOutputs", "No MIDI outputs detected.");
-        } else {
-          clearWarning("midiOutputs");
-        }
-        updateWarnings();
-      }
-
-      function sendMidiNoteOn(note, velocity, channel) {
-        if (!Runtime.midiOutput) return;
-        const status = 0x90 + clamp(channel - 1, 0, 15);
-        Runtime.midiOutput.send([status, note, velocity]);
-      }
-
-      function sendMidiNoteOff(note, channel) {
-        if (!Runtime.midiOutput) return;
-        const status = 0x80 + clamp(channel - 1, 0, 15);
-        Runtime.midiOutput.send([status, note, 0]);
-      }
-
-      function savePreset() {
-        const presetName = prompt("Preset name?", "GhostNote Preset");
-        if (!presetName) return;
-        const preset = {
-          presetName,
-          theme: State.theme,
-          selectedAudioDeviceId: State.audioDeviceId,
-          selectedMidiOutputId: State.midiOutputId,
-          selectedMidiOutputName: State.midiOutputName,
-          global: {
-            midiChannel: State.midiChannel,
-            noteLength: State.noteLength,
-            maskTime: State.maskTime,
-            channelOverride: State.channelOverride,
-            smartHihatEnabled: State.smartHihatEnabled,
-            smartHihatWindow: State.smartHihatWindow,
+        transport: {
+          state: 'stop',
+          playheadSeconds: 0,
+          basePlayheadSeconds: 0,
+          baseRealTime: performance.now(),
+          source: 'manual',
+        },
+        tracks: [],
+        clips: [],
+        placements: [],
+        selectedPlacementId: null,
+        selectedClipId: null,
+        selectedTrackId: null,
+        masterAudio: {
+          file: null,
+          name: '',
+          startSeconds: 0,
+          filename: '',
+        },
+        camera: {
+          status: 'off',
+          lastError: '',
+        },
+        projectHandle: null,
+        mediaCache: new Map(),
+        videoCache: new Map(),
+        recording: {
+          active: false,
+          pending: false,
+        },
+        midi: {
+          access: null,
+          input: null,
+          mode: 'clock',
+          connected: false,
+          clock: {
+            lastTick: 0,
+            bpm: 120,
+            playing: false,
           },
-          drumPieces: State.pads.map((pad) => ({
-            id: pad.id,
-            name: pad.name,
-            type: pad.type,
-            inputChannel: pad.inputChannel,
-            midiNote: pad.midiNote,
-            threshold: pad.threshold,
-            sensitivity: pad.sensitivity,
-            velocityCurve: pad.velocityCurve,
-            maskOverride: pad.maskOverride,
-            hihatRole: pad.hihatRole,
-            hihatChokedByClosed: pad.hihatChokedByClosed,
-            hihatChokeMode: pad.hihatChokeMode,
-            enabled: pad.enabled,
-            waveView: pad.waveView,
-            inputBoostDb: pad.inputBoostDb,
-            filter: pad.filter,
-            x: pad.x,
-            y: pad.y,
-            settingsLocked: pad.settingsLocked,
-            protected: pad.protected,
-          })),
-        };
+          mtc: {
+            qf: Array(8).fill(0),
+            lastUpdate: 0,
+            active: false,
+          },
+        },
+        preview: {
+          lastUpdate: 0,
+          activeClipId: null,
+          activePlacementId: null,
+        },
+        ui: {
+          binCollapsed: true,
+          inspectorCollapsed: true,
+        },
+        dirty: false,
+      };
 
-        const blob = new Blob([JSON.stringify(preset, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${presetName.replace(/\s+/g, "-")}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-        flashButton(Dom.savePreset);
+      const dom = {};
+
+      function cacheDom() {
+        dom.playBtn = document.getElementById('playBtn');
+        dom.stopBtn = document.getElementById('stopBtn');
+        dom.recordBtn = document.getElementById('recordBtn');
+        dom.recIndicator = document.getElementById('recIndicator');
+        dom.timeDisplay = document.getElementById('timeDisplay');
+        dom.fpsSelect = document.getElementById('fpsSelect');
+        dom.zoomSlider = document.getElementById('zoomSlider');
+        dom.cameraSelect = document.getElementById('cameraSelect');
+        dom.resolutionSelect = document.getElementById('resolutionSelect');
+        dom.refreshDevices = document.getElementById('refreshDevices');
+        dom.enableCameraBtn = document.getElementById('enableCameraBtn');
+        dom.cameraStatus = document.getElementById('cameraStatus');
+        dom.midiInputSelect = document.getElementById('midiInputSelect');
+        dom.midiModeSelect = document.getElementById('midiModeSelect');
+        dom.midiConnectBtn = document.getElementById('midiConnectBtn');
+        dom.midiStatus = document.getElementById('midiStatus');
+        dom.transportMode = document.getElementById('transportMode');
+        dom.content = document.getElementById('content');
+        dom.binPanel = document.getElementById('bin');
+        dom.inspectorPanel = document.getElementById('inspector');
+        dom.monitorFrame = document.getElementById('monitorFrame');
+        dom.binList = document.getElementById('binList');
+        dom.programVideo = document.getElementById('programVideo');
+        dom.monitorPlaceholder = document.getElementById('monitorPlaceholder');
+        dom.inspectorContent = document.getElementById('inspectorContent');
+        dom.chooseFolderBtn = document.getElementById('chooseFolderBtn');
+        dom.saveProjectBtn = document.getElementById('saveProjectBtn');
+        dom.loadProjectBtn = document.getElementById('loadProjectBtn');
+        dom.loadProjectInput = document.getElementById('loadProjectInput');
+        dom.relinkBtn = document.getElementById('relinkBtn');
+        dom.relinkInput = document.getElementById('relinkInput');
+        dom.downloadProjectBtn = document.getElementById('downloadProjectBtn');
+        dom.downloadClipsBtn = document.getElementById('downloadClipsBtn');
+        dom.exportEdlBtn = document.getElementById('exportEdlBtn');
+        dom.renderPreviewBtn = document.getElementById('renderPreviewBtn');
+        dom.exportNotes = document.getElementById('exportNotes');
+        dom.addTrackBtn = document.getElementById('addTrackBtn');
+        dom.splitBtn = document.getElementById('splitBtn');
+        dom.deletePlacementBtn = document.getElementById('deletePlacementBtn');
+        dom.trackHeaders = document.getElementById('trackHeaders');
+        dom.timelineScroll = document.getElementById('timelineScroll');
+        dom.timelineInner = document.getElementById('timelineInner');
+        dom.ruler = document.getElementById('ruler');
+        dom.playhead = document.getElementById('playhead');
+        dom.tracksLane = document.getElementById('tracksLane');
+        dom.importVideoBtn = document.getElementById('importVideoBtn');
+        dom.importAudioBtn = document.getElementById('importAudioBtn');
+        dom.insertToTrackBtn = document.getElementById('insertToTrackBtn');
+        dom.importVideoInput = document.getElementById('importVideoInput');
+        dom.importAudioInput = document.getElementById('importAudioInput');
       }
 
-      function flashButton(button) {
-        button.classList.add("flash");
-        setTimeout(() => button.classList.remove("flash"), 300);
+      function makeId(prefix) {
+        return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
       }
 
-      function handlePresetLoad(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (loadEvent) => {
-          try {
-            const preset = JSON.parse(loadEvent.target.result);
-            applyPreset(preset);
-          } catch (error) {
-            setWarning("preset", "Preset file could not be read.");
-            updateWarnings();
-          }
-        };
-        reader.readAsText(file);
-        event.target.value = "";
+      function defaultTransform() {
+        return { scale: 1, offsetX: 0, offsetY: 0 };
       }
 
-      function applyPreset(preset) {
-        State.theme = preset.theme || "dark";
-        setTheme(State.theme);
-        State.audioDeviceId = preset.selectedAudioDeviceId || State.audioDeviceId;
-        State.midiOutputId = preset.selectedMidiOutputId || State.midiOutputId;
-        State.midiOutputName = preset.selectedMidiOutputName || "";
-        State.midiChannel = preset.global?.midiChannel || 1;
-        State.noteLength = preset.global?.noteLength || DEFAULT_NOTE_LENGTH;
-        State.maskTime = preset.global?.maskTime || DEFAULT_MASK;
-        State.channelOverride = preset.global?.channelOverride ?? null;
-        State.smartHihatEnabled = preset.global?.smartHihatEnabled ?? false;
-        State.smartHihatWindow = preset.global?.smartHihatWindow ?? 12;
-
-        Dom.midiChannel.value = State.midiChannel;
-        Dom.noteLength.value = State.noteLength;
-        Dom.maskTime.value = State.maskTime;
-        Dom.channelOverride.value = State.channelOverride ?? "";
-        Dom.smartHihat.checked = State.smartHihatEnabled;
-        Dom.smartHihatWindow.value = State.smartHihatWindow;
-
-        State.pads = (preset.drumPieces || []).map((pad) => createPad(pad));
-        if (State.pads.length === 0) {
-          State.pads = DEFAULT_PADS.map((pad, index) => createPad({
-            id: `pad-${index + 1}`,
-            name: pad.name,
-            type: pad.type,
-            inputChannel: pad.inputChannel,
-            midiNote: pad.midiNote,
-            x: pad.x,
-            y: pad.y,
-            threshold: 0.12,
-            sensitivity: 1.2,
-            velocityCurve: "linear",
-            maskOverride: null,
-            hihatRole: pad.hihatRole || "none",
-            hihatChokedByClosed: pad.hihatRole === "open",
-            hihatChokeMode: "noteOff",
-            enabled: true,
-            waveView: "time",
-            inputBoostDb: 0,
-            filter: { hp: 30, lp: 12000, hpQ: 0.7, lpQ: 0.7 },
-            settingsLocked: false,
-            protected: true,
-          }));
-        }
-        renderPads();
-        State.selectedPadId = null;
-        Dom.padPanelEmpty.style.display = "block";
-        Dom.padPanelContent.style.display = "none";
-        selectMidiOutputById(State.midiOutputId);
-        Dom.audioDevice.value = State.audioDeviceId;
-        if (Runtime.audioContext) restartAudio();
+      function markDirty() {
+        state.dirty = true;
       }
 
-      function setTheme(theme) {
-        State.theme = theme;
-        document.body.classList.remove(
-          "theme-dark",
-          "theme-neon",
-          "theme-ember",
-          "theme-ocean",
-          "theme-forest",
-          "theme-dusk"
-        );
-        document.body.classList.add(`theme-${theme}`);
+      function timeToPx(seconds) {
+        return seconds * state.settings.pxPerSecond;
       }
 
-      function setWarning(key, message) {
-        Runtime.warnings.set(key, message);
+      function pxToTime(px) {
+        return px / state.settings.pxPerSecond;
       }
 
-      function clearWarning(key) {
-        Runtime.warnings.delete(key);
-      }
-
-      function updateWarnings() {
-        const warnings = [];
-        Runtime.warnings.forEach((message) => warnings.push(message));
-
-        if (Runtime.audioContext && Runtime.channelCount < MAX_CHANNELS) {
-          warnings.push(`Limited channel availability: ${Runtime.channelCount} detected.`);
-        }
-
-        const maxPadChannel = Math.max(1, ...State.pads.map((pad) => pad.inputChannel));
-        if (Runtime.audioContext && Runtime.channelCount > 0 && maxPadChannel > Runtime.channelCount) {
-          warnings.push(`Pads use channel ${maxPadChannel}, but only ${Runtime.channelCount} channels are available.`);
-        }
-
-        if (!Runtime.midiOutput && Runtime.midiOutputs.length === 0) {
-          warnings.push("No MIDI outputs detected.");
-        }
-
-        if (warnings.length) {
-          Dom.status.innerHTML = warnings.map((text) => `<div>${escapeHtml(text)}</div>`).join("");
-          Dom.status.classList.add("active");
-        } else {
-          Dom.status.classList.remove("active");
-          Dom.status.innerHTML = "";
-        }
-      }
-
-      function resolveAllOverlaps() {
-        const stageRect = Dom.kitStage.getBoundingClientRect();
-        if (!stageRect.width || !stageRect.height) return;
-        const padData = State.pads.map((pad) => {
-          const el = Runtime.padElements.get(pad.id);
-          if (!el) return null;
-          const width = el.offsetWidth;
-          const height = el.offsetHeight;
-          return {
-            pad,
-            width,
-            height,
-            cx: (pad.x / 100) * stageRect.width,
-            cy: (pad.y / 100) * stageRect.height,
-          };
-        }).filter(Boolean);
-
-        if (padData.length < 2) return;
-
-        for (let iter = 0; iter < 24; iter += 1) {
-          let moved = false;
-          for (let i = 0; i < padData.length; i += 1) {
-            for (let j = i + 1; j < padData.length; j += 1) {
-              const a = padData[i];
-              const b = padData[j];
-              const overlap = getOverlap(a, b);
-              if (!overlap) continue;
-              moved = true;
-              const dx = b.cx - a.cx;
-              const dy = b.cy - a.cy;
-              if (overlap.x < overlap.y) {
-                const dir = dx === 0 ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(dx);
-                const shift = overlap.x / 2;
-                a.cx -= dir * shift;
-                b.cx += dir * shift;
-              } else {
-                const dir = dy === 0 ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(dy);
-                const shift = overlap.y / 2;
-                a.cy -= dir * shift;
-                b.cy += dir * shift;
-              }
-            }
-          }
-          padData.forEach((item) => clampPadCenter(item, stageRect));
-          if (!moved) break;
-        }
-
-        padData.forEach((item) => {
-          item.pad.x = clamp((item.cx / stageRect.width) * 100, 0, 100);
-          item.pad.y = clamp((item.cy / stageRect.height) * 100, 0, 100);
-          updatePadPosition(item.pad);
-        });
-      }
-
-      function getOverlap(a, b) {
-        const gap = 6;
-        const overlapX = (a.width / 2 + b.width / 2 + gap) - Math.abs(b.cx - a.cx);
-        const overlapY = (a.height / 2 + b.height / 2 + gap) - Math.abs(b.cy - a.cy);
-        if (overlapX > 0 && overlapY > 0) {
-          return { x: overlapX, y: overlapY };
-        }
-        return null;
-      }
-
-      function clampPadCenter(item, stageRect) {
-        const halfW = item.width / 2;
-        const halfH = item.height / 2;
-        item.cx = clamp(item.cx, halfW, stageRect.width - halfW);
-        item.cy = clamp(item.cy, halfH, stageRect.height - halfH);
-      }
-
-      function getPadBounds(pad, el, stageRect) {
-        const halfW = el.offsetWidth / 2;
-        const halfH = el.offsetHeight / 2;
-        const minX = (halfW / stageRect.width) * 100;
-        const maxX = 100 - minX;
-        const minY = (halfH / stageRect.height) * 100;
-        const maxY = 100 - minY;
-        return { minX, maxX, minY, maxY };
+      function snapSeconds(seconds) {
+        const frame = 1 / state.settings.fps;
+        return Math.round(seconds / frame) * frame;
       }
 
       function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
       }
 
-      function mapToRange(value, inMin, inMax, outMin, outMax) {
-        const clamped = (value - inMin) / (inMax - inMin);
-        return outMin + clamp(clamped, 0, 1) * (outMax - outMin);
+      function setZoom(newZoom, anchorPx = null) {
+        const previous = state.settings.pxPerSecond;
+        const next = clamp(newZoom, ZOOM_MIN, ZOOM_MAX);
+        if (next === previous) return;
+        const scrollLeft = dom.timelineScroll.scrollLeft;
+        const anchor = anchorPx === null ? 0 : anchorPx;
+        const anchorTime = pxToTime(scrollLeft + anchor);
+        state.settings.pxPerSecond = next;
+        dom.zoomSlider.value = String(next);
+        renderTimelineMetrics();
+        if (anchorPx !== null) {
+          dom.timelineScroll.scrollLeft = anchorTime * next - anchor;
+        }
       }
 
-      function dbToGain(db) {
-        return Math.pow(10, db / 20);
+      function getTimelineDurationSeconds() {
+        let maxEnd = 0;
+        for (const placement of state.placements) {
+          const end = placement.timelineStartSeconds + placement.durationSeconds;
+          if (end > maxEnd) maxEnd = end;
+        }
+        return Math.max(MIN_DURATION, maxEnd + 1);
       }
 
-      function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
+      function getTrackById(trackId) {
+        return state.tracks.find((track) => track.id === trackId);
       }
 
-      init();
+      function getClipById(clipId) {
+        return state.clips.find((clip) => clip.id === clipId);
+      }
+
+      function getPlacementById(placementId) {
+        return state.placements.find((placement) => placement.id === placementId);
+      }
+
+      function getVisiblePlacementAtTime(seconds) {
+        const visibleTracks = state.tracks
+          .filter((track) => track.visible)
+          .sort((a, b) => a.order - b.order);
+        for (let i = visibleTracks.length - 1; i >= 0; i -= 1) {
+          const track = visibleTracks[i];
+          const placement = state.placements.find((item) => {
+            if (item.trackId !== track.id) return false;
+            const end = item.timelineStartSeconds + item.durationSeconds;
+            return seconds >= item.timelineStartSeconds && seconds <= end;
+          });
+          if (placement) return placement;
+        }
+        return null;
+      }
+
+      function updateTrackOrder() {
+        state.tracks.forEach((track, index) => {
+          track.order = index;
+        });
+      }
+
+      function addTrack(afterTrackId = null) {
+        const trackNumber = state.tracks.length + 1;
+        const newTrack = {
+          id: makeId('track'),
+          name: `V${trackNumber}`,
+          armed: false,
+          visible: true,
+          order: state.tracks.length,
+        };
+
+        if (afterTrackId) {
+          const index = state.tracks.findIndex((track) => track.id === afterTrackId);
+          if (index >= 0) {
+            state.tracks.splice(index + 1, 0, newTrack);
+          } else {
+            state.tracks.push(newTrack);
+          }
+        } else {
+          state.tracks.push(newTrack);
+        }
+
+        updateTrackOrder();
+        state.selectedTrackId = newTrack.id;
+        markDirty();
+        renderTracks();
+      }
+
+      function deleteTrack(trackId) {
+        const hasPlacements = state.placements.some((placement) => placement.trackId === trackId);
+        if (hasPlacements) {
+          const ok = window.confirm('Delete this track and its placements?');
+          if (!ok) return;
+        }
+        state.placements = state.placements.filter((placement) => placement.trackId !== trackId);
+        state.tracks = state.tracks.filter((track) => track.id !== trackId);
+        updateTrackOrder();
+        if (state.selectedTrackId === trackId) state.selectedTrackId = null;
+        if (state.selectedPlacementId) {
+          const stillExists = state.placements.some((placement) => placement.id === state.selectedPlacementId);
+          if (!stillExists) state.selectedPlacementId = null;
+        }
+        markDirty();
+        renderAll();
+      }
+
+      function selectTrack(trackId) {
+        state.selectedTrackId = trackId;
+        renderTracks();
+      }
+
+      function selectPlacement(placementId) {
+        state.selectedPlacementId = placementId;
+        state.selectedClipId = null;
+        renderTracks();
+        renderBin();
+        renderInspector();
+      }
+
+      function selectClip(clipId) {
+        state.selectedClipId = clipId;
+        state.selectedPlacementId = null;
+        renderTracks();
+        renderBin();
+        renderInspector();
+      }
+
+      function setPlayhead(seconds) {
+        const snapped = Math.max(0, snapSeconds(seconds));
+        state.transport.playheadSeconds = snapped;
+        state.transport.basePlayheadSeconds = snapped;
+        state.transport.baseRealTime = performance.now();
+        updatePlayheadUI();
+      }
+
+      function updatePlayheadUI() {
+        dom.playhead.style.left = `${timeToPx(state.transport.playheadSeconds)}px`;
+        dom.timeDisplay.textContent = secondsToSMPTE(state.transport.playheadSeconds, state.settings.fps);
+      }
+
+      function setTransportState(nextState) {
+        state.transport.state = nextState;
+        state.transport.basePlayheadSeconds = state.transport.playheadSeconds;
+        state.transport.baseRealTime = performance.now();
+        updateTransportUI();
+      }
+
+      function updateTransportUI() {
+        const recording = state.transport.state === 'record';
+        dom.recIndicator.style.opacity = recording ? 1 : 0;
+        dom.playBtn.classList.toggle('active', state.transport.state === 'play');
+        dom.recordBtn.classList.toggle('active', recording);
+        updateExportNotes();
+      }
+
+      function updatePanelLayout() {
+        const leftWidth = state.ui.binCollapsed ? 48 : 250;
+        const rightWidth = state.ui.inspectorCollapsed ? 48 : 300;
+        dom.content.style.setProperty('--left-width', `${leftWidth}px`);
+        dom.content.style.setProperty('--right-width', `${rightWidth}px`);
+      }
+
+      function setPanelCollapsed(panelId, collapsed) {
+        if (panelId === 'bin') state.ui.binCollapsed = collapsed;
+        if (panelId === 'inspector') state.ui.inspectorCollapsed = collapsed;
+        const panel = panelId === 'bin' ? dom.binPanel : dom.inspectorPanel;
+        panel.classList.toggle('collapsed', collapsed);
+        const toggle = panel.querySelector('.collapse-toggle');
+        if (toggle) {
+          toggle.textContent = collapsed ? '▸' : '▾';
+          toggle.setAttribute('aria-expanded', String(!collapsed));
+        }
+        updatePanelLayout();
+      }
+
+      function setupPanelCollapseEvents() {
+        document.querySelectorAll('.collapse-toggle').forEach((btn) => {
+          btn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const panelId = btn.dataset.panel;
+            if (!panelId) return;
+            const isCollapsed = panelId === 'bin' ? state.ui.binCollapsed : state.ui.inspectorCollapsed;
+            setPanelCollapsed(panelId, !isCollapsed);
+          });
+        });
+      }
+
+      function setManualControlsEnabled(enabled) {
+        dom.playBtn.disabled = !enabled;
+        dom.stopBtn.disabled = !enabled;
+        dom.recordBtn.disabled = !enabled;
+        dom.splitBtn.disabled = !enabled;
+        dom.deletePlacementBtn.disabled = !enabled;
+      }
+
+      function updateExternalMode() {
+        const midiConnected = !!state.midi.connected;
+        if (midiConnected) {
+          const modeLabel = state.midi.mode === 'clock' ? 'MIDI Clock'
+            : state.midi.mode === 'mtc' ? 'MTC'
+              : 'MMC';
+          setTransportSource('external', modeLabel);
+          return;
+        }
+        setTransportSource('manual', 'Manual');
+      }
+
+      function setTransportSource(source, label) {
+        state.transport.source = source;
+        const isExternal = source === 'external';
+        setManualControlsEnabled(!isExternal);
+        dom.transportMode.textContent = isExternal ? `External (${label || 'Link'})` : 'Manual';
+        dom.transportMode.className = `status-pill ${isExternal ? 'warn' : 'off'}`;
+      }
+
+      function isManualMode() {
+        return state.transport.source === 'manual';
+      }
+
+      async function startManualPlay() {
+        if (!isManualMode()) return;
+        if (state.transport.state === 'play') {
+          stopTransport();
+          return;
+        }
+        setTransportState('play');
+      }
+
+      async function startManualRecord() {
+        if (!isManualMode()) return;
+        if (state.transport.state === 'record') {
+          stopTransport();
+          return;
+        }
+        const ok = await startRecording();
+        if (!ok) return;
+        setTransportState('record');
+      }
+
+      function stopTransport() {
+        if (state.transport.state === 'record') {
+          stopRecording();
+        }
+        setTransportState('stop');
+      }
+
+      function refreshDevices() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+          dom.cameraSelect.innerHTML = '<option value="">No devices</option>';
+          return Promise.resolve();
+        }
+        return navigator.mediaDevices.enumerateDevices().then((devices) => {
+          const cameras = devices.filter((device) => device.kind === 'videoinput');
+          dom.cameraSelect.innerHTML = '';
+          const screenOption = document.createElement('option');
+          screenOption.value = 'screen';
+          screenOption.textContent = 'Screen / Window Capture';
+          dom.cameraSelect.appendChild(screenOption);
+          cameras.forEach((camera) => {
+            const option = document.createElement('option');
+            option.value = camera.deviceId;
+            option.textContent = camera.label || `Camera ${dom.cameraSelect.length + 1}`;
+            dom.cameraSelect.appendChild(option);
+          });
+          if (!cameras.length) {
+            dom.cameraSelect.value = 'screen';
+          }
+          updateCameraSourceUI();
+        }).catch(() => {
+          dom.cameraSelect.innerHTML = '<option value="">Camera list blocked</option>';
+        });
+      }
+
+      function populateResolutionOptions() {
+        const presets = [
+          { label: '640x480', width: 640, height: 480 },
+          { label: '1280x720', width: 1280, height: 720 },
+          { label: '1920x1080', width: 1920, height: 1080 },
+          { label: '2560x1440', width: 2560, height: 1440 },
+        ];
+        dom.resolutionSelect.innerHTML = '';
+        presets.forEach((preset) => {
+          const option = document.createElement('option');
+          option.value = `${preset.width}x${preset.height}`;
+          option.textContent = preset.label;
+          dom.resolutionSelect.appendChild(option);
+        });
+        dom.resolutionSelect.value = '1280x720';
+      }
+
+      function updateCameraSourceUI() {
+        const isScreen = dom.cameraSelect.value === 'screen';
+        dom.resolutionSelect.disabled = isScreen;
+      }
+
+      function setCameraStatus(status, message = '') {
+        state.camera.status = status;
+        state.camera.lastError = message;
+        let text = 'Camera Off';
+        let cls = 'status-pill off';
+        if (status === 'ready') {
+          text = 'Camera Ready';
+          cls = 'status-pill';
+        } else if (status === 'blocked') {
+          text = 'Camera Blocked';
+          cls = 'status-pill warn';
+        } else if (status === 'busy') {
+          text = 'Camera Busy';
+          cls = 'status-pill warn';
+        } else if (status === 'live') {
+          text = 'Camera Live';
+          cls = 'status-pill live';
+        }
+        dom.cameraStatus.textContent = text;
+        dom.cameraStatus.className = cls;
+      }
+
+      async function warmUpCamera() {
+        if (dom.cameraSelect.value === 'screen') {
+          setCameraStatus('off');
+          return;
+        }
+        setCameraStatus('busy');
+        const stream = await getCameraStream();
+        if (!stream) {
+          setCameraStatus('blocked', 'Permission denied or unavailable.');
+          return;
+        }
+        stream.getTracks().forEach((track) => track.stop());
+        setCameraStatus('ready');
+      }
+
+      async function getCameraStream() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert('Camera capture is not supported in this browser.');
+          setCameraStatus('blocked', 'getUserMedia unsupported.');
+          return null;
+        }
+        try {
+          setCameraStatus('busy');
+          const source = dom.cameraSelect.value;
+          let stream;
+          if (source === 'screen') {
+            if (!navigator.mediaDevices.getDisplayMedia) {
+              alert('Screen capture is not supported in this browser.');
+              setCameraStatus('blocked', 'getDisplayMedia unsupported.');
+              return null;
+            }
+            stream = await navigator.mediaDevices.getDisplayMedia({
+              video: true,
+              audio: false,
+            });
+          } else {
+            const [width, height] = dom.resolutionSelect.value.split('x').map(Number);
+            const deviceId = source || undefined;
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                deviceId: deviceId ? { exact: deviceId } : undefined,
+                width: { ideal: width },
+                height: { ideal: height },
+              },
+              audio: false,
+            });
+          }
+          return stream;
+        } catch (error) {
+          alert(`Unable to access camera: ${error.message}`);
+          setCameraStatus('blocked', error.message);
+          return null;
+        }
+      }
+
+      function getSupportedMimeType() {
+        const types = [
+          'video/webm;codecs=vp9',
+          'video/webm;codecs=vp8',
+          'video/webm',
+        ];
+        for (const type of types) {
+          if (MediaRecorder.isTypeSupported(type)) return type;
+        }
+        return '';
+      }
+
+      async function startRecording() {
+        if (state.recording.active) return true;
+        if (state.recording.pending) return false;
+        state.recording.pending = true;
+        const armedTracks = state.tracks.filter((track) => track.armed);
+        if (!armedTracks.length) {
+          alert('Arm at least one track before recording.');
+          state.recording.pending = false;
+          return false;
+        }
+
+        const stream = await getCameraStream();
+        if (!stream) {
+          state.recording.pending = false;
+          return false;
+        }
+        setCameraStatus('live');
+
+        const clipId = makeId('clip');
+        const clipName = `Recording ${new Date().toLocaleTimeString()}`;
+        const clip = {
+          id: clipId,
+          name: clipName,
+          createdAt: new Date().toISOString(),
+          durationSeconds: 0,
+          source: 'recorded',
+          filename: `${clipId}.webm`,
+        };
+        state.clips.push(clip);
+
+        const placements = armedTracks.map((track) => {
+          const placement = {
+            id: makeId('plc'),
+            clipId,
+            trackId: track.id,
+            timelineStartSeconds: state.transport.playheadSeconds,
+            clipInSeconds: 0,
+            clipOutSeconds: 0,
+            durationSeconds: 0,
+            transform: defaultTransform(),
+          };
+          state.placements.push(placement);
+          return placement.id;
+        });
+
+        const mimeType = getSupportedMimeType();
+        const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+        const chunks = [];
+
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) chunks.push(event.data);
+        };
+
+        recorder.onstop = () => {
+          finalizeRecording({
+            clipId,
+            chunks,
+            stream,
+            durationSeconds: state.recording.currentDuration || 0,
+            mimeType: recorder.mimeType,
+          });
+        };
+
+        recorder.start(200);
+
+        state.recording = {
+          active: true,
+          pending: false,
+          clipId,
+          placements,
+          chunks,
+          recorder,
+          stream,
+          startPlayhead: state.transport.playheadSeconds,
+          currentDuration: 0,
+        };
+
+        markDirty();
+        renderAll();
+        return true;
+      }
+
+      function updateRecordingPlacements() {
+        if (!state.recording.active) return;
+        const elapsed = state.transport.playheadSeconds - state.recording.startPlayhead;
+        const duration = Math.max(0, snapSeconds(elapsed));
+        state.recording.currentDuration = duration;
+        for (const placementId of state.recording.placements) {
+          const placement = getPlacementById(placementId);
+          if (!placement) continue;
+          placement.durationSeconds = duration;
+          placement.clipOutSeconds = placement.clipInSeconds + duration;
+          updatePlacementElement(placement);
+        }
+      }
+
+      function finalizeRecording(recording) {
+        const clip = getClipById(recording.clipId);
+        if (!clip) return;
+        const blob = new Blob(recording.chunks, { type: recording.mimeType || 'video/webm' });
+        clip.durationSeconds = recording.durationSeconds;
+        const url = URL.createObjectURL(blob);
+        state.mediaCache.set(clip.id, {
+          blob,
+          url,
+          name: clip.name,
+          filename: clip.filename,
+          source: 'recorded',
+        });
+
+        for (const placementId of state.recording.placements) {
+          const placement = getPlacementById(placementId);
+          if (!placement) continue;
+          placement.durationSeconds = recording.durationSeconds;
+          placement.clipOutSeconds = placement.clipInSeconds + recording.durationSeconds;
+        }
+
+        recording.stream.getTracks().forEach((track) => track.stop());
+        state.recording = { active: false, pending: false };
+        setCameraStatus('ready');
+        renderAll();
+      }
+
+      function stopRecording() {
+        if (!state.recording.active) return;
+        const { recorder } = state.recording;
+        if (recorder && recorder.state !== 'inactive') {
+          recorder.stop();
+        }
+      }
+
+      function renderTracks() {
+        dom.trackHeaders.innerHTML = '';
+        dom.tracksLane.innerHTML = '';
+
+        const trackHeaderFragment = document.createDocumentFragment();
+        const trackLaneFragment = document.createDocumentFragment();
+
+        state.tracks.forEach((track) => {
+          const header = document.createElement('div');
+          header.className = 'track-header';
+          if (state.selectedTrackId === track.id) header.classList.add('selected');
+          header.dataset.trackId = track.id;
+
+          const nameInput = document.createElement('input');
+          nameInput.className = 'track-name';
+          nameInput.value = track.name;
+          nameInput.dataset.trackId = track.id;
+
+          const controls = document.createElement('div');
+          controls.className = 'track-controls';
+
+          const armBtn = document.createElement('button');
+          armBtn.className = `track-btn track-arm ${track.armed ? 'armed' : ''}`;
+          armBtn.textContent = track.armed ? 'ARM' : 'ARM';
+          armBtn.dataset.trackId = track.id;
+
+          const visBtn = document.createElement('button');
+          visBtn.className = `track-btn track-vis ${track.visible ? '' : 'hidden'}`;
+          visBtn.textContent = track.visible ? 'VIS' : 'HID';
+          visBtn.dataset.trackId = track.id;
+
+          const addBtn = document.createElement('button');
+          addBtn.className = 'track-btn track-add';
+          addBtn.textContent = '+';
+          addBtn.dataset.trackId = track.id;
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'track-btn track-del';
+          delBtn.textContent = '-';
+          delBtn.dataset.trackId = track.id;
+
+          controls.appendChild(armBtn);
+          controls.appendChild(visBtn);
+          controls.appendChild(addBtn);
+          controls.appendChild(delBtn);
+
+          header.appendChild(nameInput);
+          header.appendChild(controls);
+          trackHeaderFragment.appendChild(header);
+
+          const row = document.createElement('div');
+          row.className = 'track-row';
+          if (!track.visible) row.classList.add('hidden');
+          row.dataset.trackId = track.id;
+
+          const placements = state.placements.filter((placement) => placement.trackId === track.id);
+          placements.forEach((placement) => {
+            const clip = getClipById(placement.clipId);
+            const clipEl = document.createElement('div');
+            clipEl.className = 'clip';
+            if (state.selectedPlacementId === placement.id) {
+              clipEl.classList.add('selected');
+            }
+            clipEl.dataset.placementId = placement.id;
+            clipEl.style.left = `${timeToPx(placement.timelineStartSeconds)}px`;
+            clipEl.style.width = `${Math.max(6, timeToPx(placement.durationSeconds))}px`;
+
+            const label = document.createElement('div');
+            label.className = 'clip-label';
+            label.textContent = clip ? clip.name : 'Missing Clip';
+
+            const leftHandle = document.createElement('div');
+            leftHandle.className = 'handle left';
+            const rightHandle = document.createElement('div');
+            rightHandle.className = 'handle right';
+
+            clipEl.appendChild(label);
+            clipEl.appendChild(leftHandle);
+            clipEl.appendChild(rightHandle);
+            row.appendChild(clipEl);
+          });
+
+          trackLaneFragment.appendChild(row);
+        });
+
+        dom.trackHeaders.appendChild(trackHeaderFragment);
+        dom.tracksLane.appendChild(trackLaneFragment);
+
+        dom.tracksLane.style.height = `${state.tracks.length * TRACK_HEIGHT}px`;
+        dom.timelineInner.style.height = `${RULER_HEIGHT + state.tracks.length * TRACK_HEIGHT}px`;
+        renderTimelineMetrics();
+      }
+
+      function updatePlacementElement(placement) {
+        const clipEl = dom.tracksLane.querySelector(`[data-placement-id="${placement.id}"]`);
+        if (!clipEl) return;
+        clipEl.style.left = `${timeToPx(placement.timelineStartSeconds)}px`;
+        clipEl.style.width = `${Math.max(6, timeToPx(placement.durationSeconds))}px`;
+      }
+
+      function renderTimelineMetrics() {
+        const duration = getTimelineDurationSeconds();
+        const width = Math.max(300, timeToPx(duration));
+        dom.timelineInner.style.width = `${width}px`;
+        dom.ruler.width = width;
+        dom.ruler.height = RULER_HEIGHT;
+        dom.tracksLane.style.top = `${RULER_HEIGHT}px`;
+        renderRuler(duration);
+        updatePlayheadUI();
+      }
+
+      function renderRuler(duration) {
+        const ctx = dom.ruler.getContext('2d');
+        ctx.clearRect(0, 0, dom.ruler.width, dom.ruler.height);
+        ctx.fillStyle = '#0e141b';
+        ctx.fillRect(0, 0, dom.ruler.width, dom.ruler.height);
+
+        const fps = state.settings.fps;
+        const pxPerSecond = state.settings.pxPerSecond;
+        const framePx = pxPerSecond / fps;
+        let minorStep = 1 / fps;
+        if (framePx < 6) minorStep = 5 / fps;
+        if (framePx < 3) minorStep = 10 / fps;
+
+        ctx.strokeStyle = '#2a3643';
+        ctx.fillStyle = '#8fa0ad';
+        ctx.font = '10px "Lucida Console", "Courier New", monospace';
+        ctx.textBaseline = 'top';
+
+        for (let t = 0; t <= duration; t += minorStep) {
+          const frameIndex = Math.round(t * fps);
+          const isMajor = frameIndex % fps === 0;
+          const x = Math.floor(t * pxPerSecond) + 0.5;
+          ctx.beginPath();
+          ctx.moveTo(x, isMajor ? 0 : RULER_HEIGHT / 2);
+          ctx.lineTo(x, RULER_HEIGHT);
+          ctx.stroke();
+          if (isMajor) {
+            const label = secondsToSMPTE(t, fps);
+            ctx.fillText(label, x + 4, 4);
+          }
+        }
+      }
+
+      function renderBin() {
+        dom.binList.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        state.clips.forEach((clip) => {
+          const item = document.createElement('div');
+          item.className = 'bin-item';
+          if (state.selectedClipId === clip.id) item.classList.add('selected');
+          const media = state.mediaCache.get(clip.id);
+          if (!media) item.classList.add('missing');
+          item.dataset.clipId = clip.id;
+
+          const title = document.createElement('div');
+          title.className = 'bin-title';
+          title.textContent = clip.name;
+
+          const meta = document.createElement('div');
+          meta.className = 'bin-meta';
+          meta.textContent = `${clip.source} | ${clip.durationSeconds.toFixed(2)}s`;
+
+          item.appendChild(title);
+          item.appendChild(meta);
+          fragment.appendChild(item);
+        });
+
+        if (state.masterAudio && state.masterAudio.name) {
+          const audioItem = document.createElement('div');
+          audioItem.className = 'bin-item';
+          audioItem.dataset.audio = 'master';
+          const title = document.createElement('div');
+          title.className = 'bin-title';
+          title.textContent = `Master Audio: ${state.masterAudio.name}`;
+          const meta = document.createElement('div');
+          meta.className = 'bin-meta';
+          meta.textContent = `Start: ${secondsToSMPTE(state.masterAudio.startSeconds, state.settings.fps)}`;
+          audioItem.appendChild(title);
+          audioItem.appendChild(meta);
+          fragment.appendChild(audioItem);
+        }
+
+        dom.binList.appendChild(fragment);
+      }
+
+      function renderInspector() {
+        const fps = state.settings.fps;
+        const step = 1 / fps;
+        if (state.selectedPlacementId) {
+          const placement = getPlacementById(state.selectedPlacementId);
+          if (!placement) {
+            dom.inspectorContent.textContent = 'Select a clip or placement.';
+            return;
+          }
+          if (!placement.transform) placement.transform = defaultTransform();
+          const clip = getClipById(placement.clipId);
+          const track = getTrackById(placement.trackId);
+          dom.inspectorContent.innerHTML = `
+            <div class="field">
+              <label>Clip</label>
+              <div class="readonly">${clip ? clip.name : 'Missing Clip'}</div>
+            </div>
+            <div class="field">
+              <label>Track</label>
+              <div class="readonly">${track ? track.name : 'Unknown'}</div>
+            </div>
+            <div class="field">
+              <label>Timeline Start (sec)</label>
+              <input id="inspectorStart" type="number" step="${step}" value="${placement.timelineStartSeconds.toFixed(3)}" />
+            </div>
+            <div class="field">
+              <label>Clip In (sec)</label>
+              <input id="inspectorIn" type="number" step="${step}" value="${placement.clipInSeconds.toFixed(3)}" />
+            </div>
+            <div class="field">
+              <label>Clip Out (sec)</label>
+              <input id="inspectorOut" type="number" step="${step}" value="${placement.clipOutSeconds.toFixed(3)}" />
+            </div>
+            <div class="field">
+              <label>Duration</label>
+              <div class="readonly">${placement.durationSeconds.toFixed(3)}s</div>
+            </div>
+            <div class="field">
+              <label>Start SMPTE</label>
+              <div class="readonly">${secondsToSMPTE(placement.timelineStartSeconds, fps)}</div>
+            </div>
+            <div class="field">
+              <label>Framing Scale</label>
+              <input id="inspectorScale" type="number" min="0.5" max="3" step="0.05" value="${placement.transform.scale.toFixed(2)}" />
+            </div>
+            <div class="field">
+              <label>Framing X (pan)</label>
+              <input id="inspectorOffsetX" type="number" min="-1" max="1" step="0.01" value="${placement.transform.offsetX.toFixed(2)}" />
+            </div>
+            <div class="field">
+              <label>Framing Y (pan)</label>
+              <input id="inspectorOffsetY" type="number" min="-1" max="1" step="0.01" value="${placement.transform.offsetY.toFixed(2)}" />
+            </div>
+          `;
+
+          const startInput = document.getElementById('inspectorStart');
+          const inInput = document.getElementById('inspectorIn');
+          const outInput = document.getElementById('inspectorOut');
+          const scaleInput = document.getElementById('inspectorScale');
+          const offsetXInput = document.getElementById('inspectorOffsetX');
+          const offsetYInput = document.getElementById('inspectorOffsetY');
+
+          startInput.addEventListener('change', () => {
+            const value = parseFloat(startInput.value);
+            if (!Number.isNaN(value)) {
+              placement.timelineStartSeconds = Math.max(0, snapSeconds(value));
+              markDirty();
+              renderTracks();
+              renderInspector();
+            }
+          });
+
+          inInput.addEventListener('change', () => {
+            const value = parseFloat(inInput.value);
+            if (!Number.isNaN(value)) {
+              const clipDuration = clip ? clip.durationSeconds : placement.clipOutSeconds;
+              placement.clipInSeconds = clamp(snapSeconds(value), 0, Math.max(0, clipDuration - step));
+              placement.durationSeconds = Math.max(step, placement.clipOutSeconds - placement.clipInSeconds);
+              markDirty();
+              renderTracks();
+              renderInspector();
+            }
+          });
+
+          outInput.addEventListener('change', () => {
+            const value = parseFloat(outInput.value);
+            if (!Number.isNaN(value)) {
+              const clipDuration = clip ? clip.durationSeconds : value;
+              placement.clipOutSeconds = clamp(snapSeconds(value), placement.clipInSeconds + step, clipDuration || value);
+              placement.durationSeconds = Math.max(step, placement.clipOutSeconds - placement.clipInSeconds);
+              markDirty();
+              renderTracks();
+              renderInspector();
+            }
+          });
+
+          scaleInput.addEventListener('change', () => {
+            const value = parseFloat(scaleInput.value);
+            if (!Number.isNaN(value)) {
+              placement.transform.scale = clamp(value, 0.5, 3);
+              markDirty();
+              updatePreview(true);
+            }
+          });
+
+          offsetXInput.addEventListener('change', () => {
+            const value = parseFloat(offsetXInput.value);
+            if (!Number.isNaN(value)) {
+              placement.transform.offsetX = clamp(value, -1, 1);
+              markDirty();
+              updatePreview(true);
+            }
+          });
+
+          offsetYInput.addEventListener('change', () => {
+            const value = parseFloat(offsetYInput.value);
+            if (!Number.isNaN(value)) {
+              placement.transform.offsetY = clamp(value, -1, 1);
+              markDirty();
+              updatePreview(true);
+            }
+          });
+          return;
+        }
+
+        if (state.selectedClipId) {
+          const clip = getClipById(state.selectedClipId);
+          if (!clip) {
+            dom.inspectorContent.textContent = 'Select a clip or placement.';
+            return;
+          }
+          dom.inspectorContent.innerHTML = `
+            <div class="field">
+              <label>Clip</label>
+              <div class="readonly">${clip.name}</div>
+            </div>
+            <div class="field">
+              <label>Source</label>
+              <div class="readonly">${clip.source}</div>
+            </div>
+            <div class="field">
+              <label>Duration</label>
+              <div class="readonly">${clip.durationSeconds.toFixed(2)}s</div>
+            </div>
+          `;
+          return;
+        }
+
+        dom.inspectorContent.textContent = 'Select a clip or placement.';
+      }
+
+      function renderAll() {
+        renderTracks();
+        renderBin();
+        renderInspector();
+        updateExportNotes();
+      }
+
+      function updatePreview(force = false) {
+        const now = performance.now();
+        if (!force && now - state.preview.lastUpdate < 120) return;
+        state.preview.lastUpdate = now;
+
+        const placement = getVisiblePlacementAtTime(state.transport.playheadSeconds);
+        if (!placement) {
+          dom.programVideo.style.display = 'none';
+          dom.programVideo.style.transform = 'translate(0%, 0%) scale(1)';
+          dom.monitorPlaceholder.style.display = 'block';
+          state.preview.activeClipId = null;
+          return;
+        }
+
+        const clip = getClipById(placement.clipId);
+        if (!clip) {
+          dom.programVideo.style.display = 'none';
+          dom.monitorPlaceholder.style.display = 'block';
+          return;
+        }
+
+        const media = state.mediaCache.get(clip.id);
+        if (!media || !media.url) {
+          dom.programVideo.style.display = 'none';
+          dom.monitorPlaceholder.style.display = 'block';
+          return;
+        }
+
+        const targetTime = Math.max(0, (state.transport.playheadSeconds - placement.timelineStartSeconds) + placement.clipInSeconds);
+        const transform = placement.transform || defaultTransform();
+
+        if (state.preview.activeClipId !== clip.id) {
+          dom.programVideo.src = media.url;
+          dom.programVideo.load();
+          state.preview.activeClipId = clip.id;
+        }
+
+        if (dom.programVideo.readyState >= 2) {
+          dom.programVideo.currentTime = Math.min(targetTime, dom.programVideo.duration || targetTime);
+        } else {
+          dom.programVideo.onloadedmetadata = () => {
+            dom.programVideo.currentTime = Math.min(targetTime, dom.programVideo.duration || targetTime);
+          };
+        }
+
+        dom.programVideo.pause();
+        dom.programVideo.style.transform = `translate(${transform.offsetX * 50}%, ${transform.offsetY * 50}%) scale(${transform.scale})`;
+        dom.programVideo.style.transformOrigin = 'center';
+        dom.programVideo.style.display = 'block';
+        dom.monitorPlaceholder.style.display = 'none';
+      }
+
+      function updateExportNotes() {
+        const hasAudio = state.masterAudio && state.masterAudio.name;
+        const offset = state.masterAudio ? state.masterAudio.startSeconds : 0;
+        const audioName = state.masterAudio ? state.masterAudio.name : 'master-audio.wav';
+        const offsetText = offset >= 0 ? offset.toFixed(3) : `-${Math.abs(offset).toFixed(3)}`;
+        const lines = [];
+        lines.push('Preview render is video-only (topmost visible clip).');
+        lines.push('To mux master audio with ffmpeg:');
+        lines.push(`ffmpeg -i camorder-preview.webm -itsoffset ${offsetText} -i "${audioName}" -c:v copy -c:a aac -shortest camorder-final.mp4`);
+        if (!hasAudio) {
+          lines.push('Import master audio to get a correct offset.');
+        }
+        dom.exportNotes.textContent = lines.join('\n');
+      }
+
+      function setMidiStatus(status, label = '') {
+        let text = label || 'MIDI Off';
+        let cls = 'status-pill off';
+        if (status === 'ready') {
+          text = label || 'MIDI Ready';
+          cls = 'status-pill';
+        } else if (status === 'connected') {
+          text = label || 'MIDI Connected';
+          cls = 'status-pill';
+        } else if (status === 'warn') {
+          text = label || 'MIDI Warning';
+          cls = 'status-pill warn';
+        }
+        dom.midiStatus.textContent = text;
+        dom.midiStatus.className = cls;
+      }
+
+      function pickPreferredMidiInput(inputs) {
+        if (!inputs.length) return '';
+        const priority = [/logic/i, /iac/i, /virtual/i, /bus/i];
+        for (const pattern of priority) {
+          const match = inputs.find((input) => pattern.test(input.name || ''));
+          if (match) return match.id;
+        }
+        return inputs[0].id;
+      }
+
+      function refreshMidiInputs() {
+        if (!state.midi.access) return;
+        const inputs = Array.from(state.midi.access.inputs.values());
+        const currentSelection = dom.midiInputSelect.value;
+        dom.midiInputSelect.innerHTML = '';
+        if (!inputs.length) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'No MIDI inputs';
+          dom.midiInputSelect.appendChild(opt);
+          return;
+        }
+        inputs.forEach((input) => {
+          const opt = document.createElement('option');
+          opt.value = input.id;
+          opt.textContent = input.name || input.id;
+          dom.midiInputSelect.appendChild(opt);
+        });
+        if (currentSelection && inputs.some((input) => input.id === currentSelection)) {
+          dom.midiInputSelect.value = currentSelection;
+        } else {
+          dom.midiInputSelect.value = pickPreferredMidiInput(inputs);
+        }
+      }
+
+      async function requestMidiAccess() {
+        if (!navigator.requestMIDIAccess) {
+          setMidiStatus('warn', 'MIDI Unsupported');
+          return null;
+        }
+        try {
+          const access = await navigator.requestMIDIAccess({ sysex: true });
+          return access;
+        } catch (error) {
+          console.warn('MIDI access error', error);
+          setMidiStatus('warn', 'MIDI Blocked');
+          return null;
+        }
+      }
+
+      function disconnectMidi() {
+        if (state.midi.input) {
+          state.midi.input.onmidimessage = null;
+        }
+        state.midi.input = null;
+        state.midi.connected = false;
+        state.midi.clock.playing = false;
+        state.midi.mtc.active = false;
+        dom.midiConnectBtn.textContent = 'Enable MIDI';
+        setMidiStatus('ready', 'MIDI Ready');
+        updateExternalMode();
+      }
+
+      async function connectMidi() {
+        if (state.midi.connected) {
+          disconnectMidi();
+          return;
+        }
+        if (!state.midi.access) {
+          state.midi.access = await requestMidiAccess();
+          if (!state.midi.access) return;
+          state.midi.access.onstatechange = refreshMidiInputs;
+        }
+        refreshMidiInputs();
+        const inputId = dom.midiInputSelect.value;
+        const input = Array.from(state.midi.access.inputs.values()).find((item) => item.id === inputId);
+        if (!input) {
+          setMidiStatus('warn', 'No MIDI Input');
+          return;
+        }
+        state.midi.input = input;
+        state.midi.input.onmidimessage = handleMidiMessage;
+        state.midi.connected = true;
+        state.midi.clock.lastTick = 0;
+        state.midi.clock.playing = false;
+        state.midi.mtc.active = false;
+        dom.midiConnectBtn.textContent = 'Disable MIDI';
+        setMidiStatus('connected', input.name || 'MIDI Connected');
+        updateExternalMode();
+      }
+
+      function handleMidiClockTick(timeStamp) {
+        if (state.midi.mode !== 'clock') return;
+        const lastTick = state.midi.clock.lastTick;
+        if (lastTick) {
+          const delta = Math.max(0.001, (timeStamp - lastTick) / 1000);
+          const bpm = 60 / (delta * 24);
+          if (Number.isFinite(bpm) && bpm >= 20 && bpm <= 300) {
+            state.midi.clock.bpm = state.midi.clock.bpm * 0.85 + bpm * 0.15;
+          }
+        }
+        state.midi.clock.lastTick = timeStamp;
+        if (!state.midi.clock.playing) return;
+        const tickSeconds = 60 / (state.midi.clock.bpm * 24);
+        setPlayhead(state.transport.playheadSeconds + tickSeconds);
+        updateRecordingPlacements();
+        if (state.tracks.some((track) => track.armed)) {
+          if (state.transport.state !== 'record' && !state.recording.pending) {
+            startExternalRecord();
+          }
+        }
+      }
+
+      function handleMtcQuarterFrame(data) {
+        if (state.midi.mode !== 'mtc') return;
+        const msgType = (data >> 4) & 0x07;
+        const value = data & 0x0f;
+        state.midi.mtc.qf[msgType] = value;
+        const frames = state.midi.mtc.qf[0] | ((state.midi.mtc.qf[1] & 0x1) << 4);
+        const seconds = state.midi.mtc.qf[2] | ((state.midi.mtc.qf[3] & 0x3) << 4);
+        const minutes = state.midi.mtc.qf[4] | ((state.midi.mtc.qf[5] & 0x3) << 4);
+        const hours = state.midi.mtc.qf[6] | ((state.midi.mtc.qf[7] & 0x1) << 4);
+        const rateCode = (state.midi.mtc.qf[7] >> 1) & 0x3;
+        const fps = rateCode === 0 ? 24 : rateCode === 1 ? 25 : rateCode === 2 ? 30 : 30;
+        if (fps !== state.settings.fps) {
+          state.settings.fps = fps;
+          dom.fpsSelect.value = String(fps);
+          renderTimelineMetrics();
+        }
+        const timeSeconds = hours * 3600 + minutes * 60 + seconds + frames / fps;
+        setPlayhead(timeSeconds);
+        if (state.transport.state !== 'record') setTransportState('play');
+        state.midi.mtc.lastUpdate = performance.now();
+        state.midi.mtc.active = true;
+        updateRecordingPlacements();
+      }
+
+      function handleMtcFullFrame(data) {
+        if (state.midi.mode !== 'mtc') return;
+        if (data.length < 9) return;
+        const rateCode = (data[5] >> 5) & 0x3;
+        const fps = rateCode === 0 ? 24 : rateCode === 1 ? 25 : rateCode === 2 ? 30 : 30;
+        const hours = data[5] & 0x1f;
+        const minutes = data[6];
+        const seconds = data[7];
+        const frames = data[8];
+        if (fps !== state.settings.fps) {
+          state.settings.fps = fps;
+          dom.fpsSelect.value = String(fps);
+          renderTimelineMetrics();
+        }
+        const timeSeconds = hours * 3600 + minutes * 60 + seconds + frames / fps;
+        setPlayhead(timeSeconds);
+        if (state.transport.state !== 'record') setTransportState('play');
+        state.midi.mtc.lastUpdate = performance.now();
+        state.midi.mtc.active = true;
+        updateRecordingPlacements();
+      }
+
+      function handleMmcCommand(cmd) {
+        const mode = state.midi.mode;
+        if (cmd === 0x02) {
+          if (mode === 'clock') state.midi.clock.playing = true;
+          setTransportState('play');
+        } else if (cmd === 0x01) {
+          if (mode === 'clock') state.midi.clock.playing = false;
+          stopTransport();
+        } else if (cmd === 0x06) {
+          if (mode === 'clock') state.midi.clock.playing = true;
+          startExternalRecord();
+        } else if (cmd === 0x07) {
+          if (mode === 'clock') state.midi.clock.playing = false;
+          stopTransport();
+        }
+      }
+
+      function handleSongPositionPointer(lsb, msb) {
+        if (state.midi.mode !== 'clock') return;
+        const spp = (msb << 7) | lsb;
+        const bpm = Math.max(20, state.midi.clock.bpm || 120);
+        const seconds = (spp * 60) / (bpm * 4);
+        setPlayhead(seconds);
+      }
+
+      function handleMmcLocate(data) {
+        if (state.midi.mode !== 'mmc') return;
+        if (data.length < 12) return;
+        if (data[1] !== 0x7F || data[3] !== 0x06 || data[4] !== 0x44) return;
+        const fpsCode = (data[5] >> 5) & 0x03;
+        const fps = fpsCode === 0 ? 24 : fpsCode === 1 ? 25 : fpsCode === 2 ? 30 : 30;
+        const hours = data[5] & 0x1f;
+        const minutes = data[6];
+        const seconds = data[7];
+        const frames = data[8];
+        if (fps !== state.settings.fps) {
+          state.settings.fps = fps;
+          dom.fpsSelect.value = String(fps);
+          renderTimelineMetrics();
+        }
+        const timeSeconds = hours * 3600 + minutes * 60 + seconds + frames / fps;
+        setPlayhead(timeSeconds);
+      }
+
+      function handleMidiMessage(event) {
+        const data = event.data;
+        const status = data[0];
+        if (status === 0xF8) {
+          handleMidiClockTick(event.timeStamp);
+          return;
+        }
+        if (status === 0xFA) {
+          if (state.midi.mode === 'clock') {
+            state.midi.clock.playing = true;
+            setPlayhead(0);
+            setTransportState('play');
+          }
+          return;
+        }
+        if (status === 0xFB) {
+          if (state.midi.mode === 'clock') {
+            state.midi.clock.playing = true;
+            setTransportState('play');
+          }
+          return;
+        }
+        if (status === 0xFC) {
+          if (state.midi.mode === 'clock') {
+            state.midi.clock.playing = false;
+          }
+          stopTransport();
+          return;
+        }
+        if (status === 0xF1 && data.length > 1) {
+          handleMtcQuarterFrame(data[1]);
+          return;
+        }
+        if (status === 0xF2 && data.length > 2) {
+          handleSongPositionPointer(data[1], data[2]);
+          return;
+        }
+        if (status === 0xF0) {
+          if (data[1] === 0x7F && data[3] === 0x01 && data[4] === 0x01) {
+            handleMtcFullFrame(data);
+            return;
+          }
+          if (data[1] === 0x7F && data[3] === 0x06 && data.length > 4) {
+            if (data[4] === 0x44) {
+              handleMmcLocate(data);
+              return;
+            }
+            handleMmcCommand(data[4]);
+          }
+        }
+      }
+
+      async function startExternalRecord() {
+        if (state.transport.state === 'record') return;
+        const ok = await startRecording();
+        if (ok) setTransportState('record');
+      }
+
+      function setupTimelineScrollSync() {
+        let syncing = false;
+        dom.trackHeaders.addEventListener('scroll', () => {
+          if (syncing) return;
+          syncing = true;
+          dom.timelineScroll.scrollTop = dom.trackHeaders.scrollTop;
+          syncing = false;
+        });
+        dom.timelineScroll.addEventListener('scroll', () => {
+          if (syncing) return;
+          syncing = true;
+          dom.trackHeaders.scrollTop = dom.timelineScroll.scrollTop;
+          syncing = false;
+        });
+      }
+
+      function setupTrackHeaderEvents() {
+        dom.trackHeaders.addEventListener('click', (event) => {
+          const header = event.target.closest('.track-header');
+          if (!header) return;
+          const trackId = header.dataset.trackId;
+          if (!trackId) return;
+
+          if (event.target.classList.contains('track-arm')) {
+            const track = getTrackById(trackId);
+            if (track) {
+              track.armed = !track.armed;
+              markDirty();
+              renderTracks();
+            }
+            return;
+          }
+
+          if (event.target.classList.contains('track-vis')) {
+            const track = getTrackById(trackId);
+            if (track) {
+              track.visible = !track.visible;
+              markDirty();
+              renderTracks();
+              updatePreview(true);
+            }
+            return;
+          }
+
+          if (event.target.classList.contains('track-add')) {
+            addTrack(trackId);
+            return;
+          }
+
+          if (event.target.classList.contains('track-del')) {
+            deleteTrack(trackId);
+            return;
+          }
+
+          selectTrack(trackId);
+        });
+
+        dom.trackHeaders.addEventListener('input', (event) => {
+          if (!event.target.classList.contains('track-name')) return;
+          const track = getTrackById(event.target.dataset.trackId);
+          if (track) {
+            track.name = event.target.value;
+            markDirty();
+          }
+        });
+      }
+
+      let dragState = null;
+      let monitorDrag = null;
+
+      function setupTimelineInteractions() {
+        dom.tracksLane.addEventListener('pointerdown', (event) => {
+          const clipEl = event.target.closest('.clip');
+          if (!clipEl) return;
+          const placementId = clipEl.dataset.placementId;
+          if (!placementId) return;
+          selectPlacement(placementId);
+
+          let mode = 'move';
+          if (event.target.classList.contains('handle')) {
+            mode = event.target.classList.contains('left') ? 'trim-left' : 'trim-right';
+          }
+
+          const placement = getPlacementById(placementId);
+          const clip = placement ? getClipById(placement.clipId) : null;
+          if (!placement) return;
+
+          dragState = {
+            mode,
+            placementId,
+            startX: event.clientX,
+            originStart: placement.timelineStartSeconds,
+            originIn: placement.clipInSeconds,
+            originOut: placement.clipOutSeconds,
+            clipDuration: clip ? clip.durationSeconds : placement.clipOutSeconds,
+          };
+
+          clipEl.setPointerCapture(event.pointerId);
+        });
+
+        dom.timelineScroll.addEventListener('pointerdown', (event) => {
+          if (event.target.closest('.clip')) return;
+          const rect = dom.timelineInner.getBoundingClientRect();
+          const x = event.clientX - rect.left + dom.timelineScroll.scrollLeft;
+          setPlayhead(pxToTime(x));
+
+          dragState = {
+            mode: 'playhead',
+            startX: event.clientX,
+            originPlayhead: state.transport.playheadSeconds,
+          };
+        });
+
+        dom.playhead.addEventListener('pointerdown', (event) => {
+          dragState = {
+            mode: 'playhead',
+            startX: event.clientX,
+            originPlayhead: state.transport.playheadSeconds,
+          };
+          dom.playhead.setPointerCapture(event.pointerId);
+        });
+
+        window.addEventListener('pointermove', (event) => {
+          if (!dragState) return;
+          const dx = event.clientX - dragState.startX;
+          const deltaSeconds = snapSeconds(pxToTime(dx));
+
+          if (dragState.mode === 'playhead') {
+            setPlayhead(dragState.originPlayhead + deltaSeconds);
+            updatePreview(true);
+            return;
+          }
+
+          const placement = getPlacementById(dragState.placementId);
+          if (!placement) return;
+          const frame = 1 / state.settings.fps;
+
+          if (dragState.mode === 'move') {
+            placement.timelineStartSeconds = Math.max(0, snapSeconds(dragState.originStart + deltaSeconds));
+            updatePlacementElement(placement);
+            return;
+          }
+
+          if (dragState.mode === 'trim-left') {
+            const clipDuration = dragState.clipDuration || placement.clipOutSeconds;
+            const newClipIn = clamp(snapSeconds(dragState.originIn + deltaSeconds), 0, dragState.originOut - frame);
+            const offset = newClipIn - dragState.originIn;
+            const newStart = Math.max(0, dragState.originStart + offset);
+            placement.clipInSeconds = newClipIn;
+            placement.timelineStartSeconds = newStart;
+            placement.durationSeconds = Math.max(frame, placement.clipOutSeconds - placement.clipInSeconds);
+            updatePlacementElement(placement);
+            return;
+          }
+
+          if (dragState.mode === 'trim-right') {
+            const clipDuration = dragState.clipDuration || dragState.originOut + deltaSeconds;
+            const newOut = clamp(snapSeconds(dragState.originOut + deltaSeconds), dragState.originIn + frame, clipDuration || dragState.originOut + deltaSeconds);
+            placement.clipOutSeconds = newOut;
+            placement.durationSeconds = Math.max(frame, placement.clipOutSeconds - placement.clipInSeconds);
+            updatePlacementElement(placement);
+          }
+        });
+
+        window.addEventListener('pointerup', () => {
+          if (dragState) {
+            markDirty();
+            renderTracks();
+            renderInspector();
+          }
+          dragState = null;
+        });
+
+        dom.tracksLane.addEventListener('click', (event) => {
+          if (event.target.closest('.clip')) return;
+          state.selectedPlacementId = null;
+          renderTracks();
+          renderInspector();
+        });
+
+        dom.ruler.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          const delta = -event.deltaY * 0.2;
+          setZoom(state.settings.pxPerSecond + delta, event.offsetX);
+        }, { passive: false });
+
+        dom.timelineScroll.addEventListener('wheel', (event) => {
+          if (!(event.ctrlKey || event.metaKey)) return;
+          event.preventDefault();
+          const rect = dom.timelineScroll.getBoundingClientRect();
+          const anchor = event.clientX - rect.left;
+          const delta = -event.deltaY * 0.2;
+          setZoom(state.settings.pxPerSecond + delta, anchor);
+        }, { passive: false });
+      }
+
+      function setupMonitorInteractions() {
+        dom.monitorFrame.addEventListener('pointerdown', (event) => {
+          if (!state.selectedPlacementId) return;
+          const placement = getPlacementById(state.selectedPlacementId);
+          if (!placement) return;
+          if (!placement.transform) placement.transform = defaultTransform();
+          monitorDrag = {
+            placementId: placement.id,
+            startX: event.clientX,
+            startY: event.clientY,
+            baseOffsetX: placement.transform.offsetX,
+            baseOffsetY: placement.transform.offsetY,
+            width: dom.monitorFrame.clientWidth || 1,
+            height: dom.monitorFrame.clientHeight || 1,
+          };
+          dom.monitorFrame.setPointerCapture(event.pointerId);
+        });
+
+        window.addEventListener('pointermove', (event) => {
+          if (!monitorDrag) return;
+          const placement = getPlacementById(monitorDrag.placementId);
+          if (!placement) return;
+          const dx = event.clientX - monitorDrag.startX;
+          const dy = event.clientY - monitorDrag.startY;
+          const nextX = monitorDrag.baseOffsetX + dx / (monitorDrag.width * 0.5);
+          const nextY = monitorDrag.baseOffsetY + dy / (monitorDrag.height * 0.5);
+          placement.transform.offsetX = clamp(nextX, -1, 1);
+          placement.transform.offsetY = clamp(nextY, -1, 1);
+          updatePreview(true);
+        });
+
+        window.addEventListener('pointerup', () => {
+          if (!monitorDrag) return;
+          markDirty();
+          renderInspector();
+          monitorDrag = null;
+        });
+      }
+
+      function splitSelectedPlacement() {
+        if (!state.selectedPlacementId) return;
+        const placement = getPlacementById(state.selectedPlacementId);
+        if (!placement) return;
+        const splitTime = state.transport.playheadSeconds;
+        const start = placement.timelineStartSeconds;
+        const end = start + placement.durationSeconds;
+        if (splitTime <= start || splitTime >= end) return;
+
+        const offset = splitTime - start;
+        const leftDuration = offset;
+        const rightDuration = placement.durationSeconds - offset;
+
+        const newPlacement = {
+          id: makeId('plc'),
+          clipId: placement.clipId,
+          trackId: placement.trackId,
+          timelineStartSeconds: splitTime,
+          clipInSeconds: placement.clipInSeconds + offset,
+          clipOutSeconds: placement.clipOutSeconds,
+          durationSeconds: rightDuration,
+          transform: { ...placement.transform },
+        };
+
+        placement.clipOutSeconds = placement.clipInSeconds + leftDuration;
+        placement.durationSeconds = leftDuration;
+
+        state.placements.push(newPlacement);
+        markDirty();
+        renderAll();
+      }
+
+      function deleteSelectedPlacement() {
+        if (!state.selectedPlacementId) return;
+        state.placements = state.placements.filter((placement) => placement.id !== state.selectedPlacementId);
+        state.selectedPlacementId = null;
+        markDirty();
+        renderAll();
+      }
+
+      function setupBinEvents() {
+        dom.binList.addEventListener('click', (event) => {
+          const item = event.target.closest('.bin-item');
+          if (!item) return;
+          if (item.dataset.clipId) {
+            selectClip(item.dataset.clipId);
+          }
+        });
+      }
+
+      function insertSelectedClipToTrack() {
+        if (!state.selectedClipId || !state.selectedTrackId) return;
+        const clip = getClipById(state.selectedClipId);
+        if (!clip) return;
+        const duration = clip.durationSeconds || 5;
+        const placement = {
+          id: makeId('plc'),
+          clipId: clip.id,
+          trackId: state.selectedTrackId,
+          timelineStartSeconds: state.transport.playheadSeconds,
+          clipInSeconds: 0,
+          clipOutSeconds: duration,
+          durationSeconds: duration,
+          transform: defaultTransform(),
+        };
+        state.placements.push(placement);
+        markDirty();
+        renderAll();
+      }
+
+      function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (event) => {
+          const tag = event.target.tagName;
+          if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+          if (!isManualMode()) return;
+          if (event.code === 'Space') {
+            event.preventDefault();
+            startManualPlay();
+          }
+          if (event.key.toLowerCase() === 'r') {
+            event.preventDefault();
+            startManualRecord();
+          }
+          if (event.key.toLowerCase() === 's') {
+            event.preventDefault();
+            splitSelectedPlacement();
+          }
+          if (event.key === 'Delete') {
+            event.preventDefault();
+            deleteSelectedPlacement();
+          }
+        });
+      }
+
+      function buildProjectJSON() {
+        return {
+          settings: {
+            fps: state.settings.fps,
+            pxPerSecond: state.settings.pxPerSecond,
+            createdAt: state.settings.createdAt,
+          },
+          tracks: state.tracks.map((track) => ({
+            id: track.id,
+            name: track.name,
+            armed: track.armed,
+            visible: track.visible,
+            order: track.order,
+          })),
+          clips: state.clips.map((clip) => ({
+            id: clip.id,
+            name: clip.name,
+            createdAt: clip.createdAt,
+            durationSeconds: clip.durationSeconds,
+            source: clip.source,
+            filename: clip.filename,
+          })),
+          placements: state.placements.map((placement) => ({
+            id: placement.id,
+            clipId: placement.clipId,
+            trackId: placement.trackId,
+            timelineStartSeconds: placement.timelineStartSeconds,
+            clipInSeconds: placement.clipInSeconds,
+            clipOutSeconds: placement.clipOutSeconds,
+            durationSeconds: placement.durationSeconds,
+            transform: placement.transform || defaultTransform(),
+          })),
+          masterAudio: state.masterAudio && state.masterAudio.name ? {
+            name: state.masterAudio.name,
+            startSeconds: state.masterAudio.startSeconds,
+            filename: state.masterAudio.filename,
+          } : null,
+        };
+      }
+
+      async function ensurePermission(handle) {
+        if (!handle) return false;
+        if (await handle.queryPermission({ mode: 'readwrite' }) === 'granted') return true;
+        return (await handle.requestPermission({ mode: 'readwrite' })) === 'granted';
+      }
+
+      async function chooseProjectFolder() {
+        if (!window.showDirectoryPicker) {
+          alert('File System Access API not available.');
+          return;
+        }
+        state.projectHandle = await window.showDirectoryPicker();
+        const ok = await ensurePermission(state.projectHandle);
+        if (!ok) alert('Write permission denied for the selected folder.');
+      }
+
+      async function saveProject() {
+        if (!window.showDirectoryPicker) {
+          alert('File System Access API not available.');
+          return;
+        }
+        if (!state.projectHandle) {
+          await chooseProjectFolder();
+        }
+        if (!state.projectHandle) return;
+        const ok = await ensurePermission(state.projectHandle);
+        if (!ok) return;
+
+        const mediaDir = await state.projectHandle.getDirectoryHandle('media', { create: true });
+        const audioDir = await state.projectHandle.getDirectoryHandle('audio', { create: true });
+
+        for (const clip of state.clips) {
+          const media = state.mediaCache.get(clip.id);
+          if (!media) continue;
+          const filename = clip.filename || `${clip.id}.webm`;
+          clip.filename = filename;
+          if (media.blob) {
+            const handle = await mediaDir.getFileHandle(filename, { create: true });
+            const writable = await handle.createWritable();
+            await writable.write(media.blob);
+            await writable.close();
+          } else if (media.file) {
+            const handle = await mediaDir.getFileHandle(filename, { create: true });
+            const writable = await handle.createWritable();
+            await writable.write(media.file);
+            await writable.close();
+          }
+        }
+
+        if (state.masterAudio && state.masterAudio.file) {
+          const audioHandle = await audioDir.getFileHandle(state.masterAudio.filename || state.masterAudio.name, { create: true });
+          const writable = await audioHandle.createWritable();
+          await writable.write(state.masterAudio.file);
+          await writable.close();
+        }
+
+        const projectData = buildProjectJSON();
+        const projectHandle = await state.projectHandle.getFileHandle('camorder-project.json', { create: true });
+        const writable = await projectHandle.createWritable();
+        await writable.write(JSON.stringify(projectData, null, 2));
+        await writable.close();
+
+        state.dirty = false;
+        alert('Project saved.');
+      }
+
+      function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function downloadProjectJSON() {
+        const data = buildProjectJSON();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        downloadBlob(blob, 'camorder-project.json');
+      }
+
+      function downloadRecordedClips() {
+        for (const clip of state.clips) {
+          if (clip.source !== 'recorded') continue;
+          const media = state.mediaCache.get(clip.id);
+          if (media && media.blob) {
+            downloadBlob(media.blob, clip.filename || `${clip.id}.webm`);
+          }
+        }
+      }
+
+      function loadProjectFromJSON(data) {
+        if (!data) return;
+        state.settings.fps = data.settings?.fps || state.settings.fps;
+        state.settings.pxPerSecond = data.settings?.pxPerSecond || state.settings.pxPerSecond;
+        dom.fpsSelect.value = String(state.settings.fps);
+        dom.zoomSlider.value = String(state.settings.pxPerSecond);
+        setZoom(state.settings.pxPerSecond);
+
+        state.tracks = (data.tracks || []).map((track) => ({
+          id: track.id,
+          name: track.name,
+          armed: !!track.armed,
+          visible: track.visible !== false,
+          order: track.order || 0,
+        }));
+        updateTrackOrder();
+
+        state.clips = (data.clips || []).map((clip) => ({
+          id: clip.id,
+          name: clip.name,
+          createdAt: clip.createdAt,
+          durationSeconds: clip.durationSeconds || 0,
+          source: clip.source || 'imported',
+          filename: clip.filename,
+        }));
+
+        state.placements = (data.placements || []).map((placement) => ({
+          id: placement.id,
+          clipId: placement.clipId,
+          trackId: placement.trackId,
+          timelineStartSeconds: placement.timelineStartSeconds || 0,
+          clipInSeconds: placement.clipInSeconds || 0,
+          clipOutSeconds: placement.clipOutSeconds || 0,
+          durationSeconds: placement.durationSeconds || 0,
+          transform: placement.transform ? {
+            scale: placement.transform.scale || 1,
+            offsetX: placement.transform.offsetX || 0,
+            offsetY: placement.transform.offsetY || 0,
+          } : defaultTransform(),
+        }));
+
+        state.masterAudio = data.masterAudio ? {
+          file: null,
+          name: data.masterAudio.name || '',
+          startSeconds: data.masterAudio.startSeconds || 0,
+          filename: data.masterAudio.filename || data.masterAudio.name || '',
+        } : { file: null, name: '', startSeconds: 0, filename: '' };
+
+        state.mediaCache.clear();
+        state.videoCache.clear();
+        state.selectedClipId = null;
+        state.selectedPlacementId = null;
+        state.selectedTrackId = null;
+        state.dirty = false;
+        renderAll();
+      }
+
+      async function loadProjectFromFile(file) {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        loadProjectFromJSON(data);
+      }
+
+      async function relinkMedia(files) {
+        if (!files || !files.length) return;
+        for (const file of files) {
+          const clip = state.clips.find((item) => item.filename === file.name || item.name === file.name);
+          if (clip) {
+            const url = URL.createObjectURL(file);
+            state.mediaCache.set(clip.id, {
+              file,
+              url,
+              name: clip.name,
+              filename: file.name,
+              source: clip.source,
+            });
+            await setClipDurationFromFile(clip, url);
+            continue;
+          }
+          if (state.masterAudio && file.name === state.masterAudio.name) {
+            state.masterAudio.file = file;
+            state.masterAudio.filename = file.name;
+          }
+        }
+        renderAll();
+      }
+
+      async function setClipDurationFromFile(clip, url) {
+        return new Promise((resolve) => {
+          const tempVideo = document.createElement('video');
+          tempVideo.preload = 'metadata';
+          tempVideo.src = url;
+          tempVideo.onloadedmetadata = () => {
+            clip.durationSeconds = tempVideo.duration || clip.durationSeconds;
+            resolve();
+          };
+          tempVideo.onerror = () => resolve();
+        });
+      }
+
+      async function importVideoFile(file) {
+        const clipId = makeId('clip');
+        const url = URL.createObjectURL(file);
+        const clip = {
+          id: clipId,
+          name: file.name,
+          createdAt: new Date().toISOString(),
+          durationSeconds: 0,
+          source: 'imported',
+          filename: file.name,
+        };
+        state.clips.push(clip);
+        state.mediaCache.set(clipId, {
+          file,
+          url,
+          name: clip.name,
+          filename: file.name,
+          source: 'imported',
+        });
+        await setClipDurationFromFile(clip, url);
+        markDirty();
+        renderAll();
+      }
+
+      function importAudioFile(file) {
+        state.masterAudio = {
+          file,
+          name: file.name,
+          startSeconds: state.transport.playheadSeconds,
+          filename: file.name,
+        };
+        markDirty();
+        renderBin();
+        updateExportNotes();
+      }
+
+      async function renderPreview() {
+        if (dom.renderPreviewBtn.disabled) return;
+        const duration = getTimelineDurationSeconds();
+        if (duration <= 0) {
+          alert('Nothing to render.');
+          return;
+        }
+        dom.renderPreviewBtn.disabled = true;
+        dom.renderPreviewBtn.textContent = 'Rendering...';
+
+        const fps = state.settings.fps;
+        const canvas = document.createElement('canvas');
+        const width = 1280;
+        const height = 720;
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, width, height);
+
+        const stream = canvas.captureStream(fps);
+        const mimeType = getSupportedMimeType() || 'video/webm';
+        const recorder = new MediaRecorder(stream, { mimeType });
+        const chunks = [];
+
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) chunks.push(event.data);
+        };
+
+        recorder.start();
+
+        const frameDuration = 1 / fps;
+
+        for (let t = 0; t <= duration; t += frameDuration) {
+          const placement = getVisiblePlacementAtTime(t);
+          if (!placement) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, width, height);
+          } else {
+            const clip = getClipById(placement.clipId);
+            const media = clip ? state.mediaCache.get(clip.id) : null;
+            if (!clip || !media || !media.url) {
+              ctx.fillStyle = '#000';
+              ctx.fillRect(0, 0, width, height);
+            } else {
+              const videoEl = await getVideoElementForRender(clip.id, media.url);
+              const seekTime = Math.max(0, (t - placement.timelineStartSeconds) + placement.clipInSeconds);
+              const transform = placement.transform || defaultTransform();
+              const scale = clamp(transform.scale || 1, 0.5, 3);
+              const offsetX = clamp(transform.offsetX || 0, -1, 1);
+              const offsetY = clamp(transform.offsetY || 0, -1, 1);
+              await seekVideo(videoEl, seekTime);
+              const destW = width * scale;
+              const destH = height * scale;
+              const destX = (width - destW) / 2 + offsetX * (width * 0.5);
+              const destY = (height - destH) / 2 + offsetY * (height * 0.5);
+              ctx.drawImage(videoEl, destX, destY, destW, destH);
+            }
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000 / fps));
+        }
+
+        await new Promise((resolve) => {
+          recorder.onstop = resolve;
+          recorder.stop();
+        });
+
+        const blob = new Blob(chunks, { type: mimeType });
+        downloadBlob(blob, 'camorder-preview.webm');
+        dom.renderPreviewBtn.disabled = false;
+        dom.renderPreviewBtn.textContent = 'Render Preview WebM';
+      }
+
+      async function getVideoElementForRender(clipId, url) {
+        if (state.videoCache.has(clipId)) return state.videoCache.get(clipId);
+        const video = document.createElement('video');
+        video.src = url;
+        video.muted = true;
+        video.playsInline = true;
+        await new Promise((resolve) => {
+          video.onloadedmetadata = resolve;
+          video.onerror = resolve;
+        });
+        state.videoCache.set(clipId, video);
+        return video;
+      }
+
+      function seekVideo(video, time) {
+        return new Promise((resolve) => {
+          if (!video || Number.isNaN(time)) {
+            resolve();
+            return;
+          }
+          const handler = () => {
+            video.removeEventListener('seeked', handler);
+            resolve();
+          };
+          video.addEventListener('seeked', handler);
+          video.currentTime = Math.min(time, video.duration || time);
+        });
+      }
+
+      function updateFsUi() {
+        const supported = 'showDirectoryPicker' in window;
+        dom.chooseFolderBtn.disabled = !supported;
+        dom.saveProjectBtn.disabled = !supported;
+      }
+
+      function setupEvents() {
+        dom.playBtn.addEventListener('click', startManualPlay);
+        dom.stopBtn.addEventListener('click', stopTransport);
+        dom.recordBtn.addEventListener('click', startManualRecord);
+        dom.fpsSelect.addEventListener('change', () => {
+          state.settings.fps = parseInt(dom.fpsSelect.value, 10);
+          renderTimelineMetrics();
+          renderInspector();
+          updateExportNotes();
+        });
+        dom.zoomSlider.addEventListener('input', () => {
+          setZoom(parseInt(dom.zoomSlider.value, 10));
+        });
+        dom.refreshDevices.addEventListener('click', refreshDevices);
+        dom.enableCameraBtn.addEventListener('click', warmUpCamera);
+        dom.cameraSelect.addEventListener('change', () => {
+          setCameraStatus('off');
+          updateCameraSourceUI();
+        });
+        dom.resolutionSelect.addEventListener('change', () => setCameraStatus('off'));
+        dom.midiConnectBtn.addEventListener('click', connectMidi);
+        dom.midiModeSelect.addEventListener('change', () => {
+          state.midi.mode = dom.midiModeSelect.value;
+          state.midi.mtc.active = false;
+          state.midi.clock.playing = false;
+          updateExternalMode();
+        });
+        dom.midiInputSelect.addEventListener('change', () => {
+          if (state.midi.connected) {
+            disconnectMidi();
+            connectMidi();
+          }
+        });
+
+        dom.addTrackBtn.addEventListener('click', () => addTrack());
+        dom.splitBtn.addEventListener('click', splitSelectedPlacement);
+        dom.deletePlacementBtn.addEventListener('click', deleteSelectedPlacement);
+        dom.insertToTrackBtn.addEventListener('click', insertSelectedClipToTrack);
+
+        dom.importVideoBtn.addEventListener('click', () => dom.importVideoInput.click());
+        dom.importAudioBtn.addEventListener('click', () => dom.importAudioInput.click());
+        dom.importVideoInput.addEventListener('change', async (event) => {
+          const file = event.target.files[0];
+          if (file) await importVideoFile(file);
+          dom.importVideoInput.value = '';
+        });
+        dom.importAudioInput.addEventListener('change', (event) => {
+          const file = event.target.files[0];
+          if (file) importAudioFile(file);
+          dom.importAudioInput.value = '';
+        });
+
+        dom.chooseFolderBtn.addEventListener('click', chooseProjectFolder);
+        dom.saveProjectBtn.addEventListener('click', saveProject);
+        dom.loadProjectBtn.addEventListener('click', () => dom.loadProjectInput.click());
+        dom.loadProjectInput.addEventListener('change', async (event) => {
+          const file = event.target.files[0];
+          if (file) await loadProjectFromFile(file);
+          dom.loadProjectInput.value = '';
+        });
+        dom.relinkBtn.addEventListener('click', () => dom.relinkInput.click());
+        dom.relinkInput.addEventListener('change', async (event) => {
+          const files = Array.from(event.target.files || []);
+          await relinkMedia(files);
+          dom.relinkInput.value = '';
+        });
+
+        dom.downloadProjectBtn.addEventListener('click', downloadProjectJSON);
+        dom.downloadClipsBtn.addEventListener('click', downloadRecordedClips);
+        dom.exportEdlBtn.addEventListener('click', downloadProjectJSON);
+        dom.renderPreviewBtn.addEventListener('click', renderPreview);
+
+        setupTrackHeaderEvents();
+        setupTimelineScrollSync();
+        setupTimelineInteractions();
+        setupMonitorInteractions();
+        setupBinEvents();
+        setupKeyboardShortcuts();
+        setupPanelCollapseEvents();
+
+        window.addEventListener('resize', () => {
+          renderTimelineMetrics();
+          updatePanelLayout();
+        });
+
+        window.addEventListener('beforeunload', (event) => {
+          if (!state.dirty) return;
+          event.preventDefault();
+          event.returnValue = '';
+        });
+      }
+
+      function tick() {
+        const now = performance.now();
+        const midiTimingActive = state.midi.connected && (
+          (state.midi.mode === 'clock' && state.midi.clock.playing) ||
+          (state.midi.mode === 'mtc' && state.midi.mtc.active)
+        );
+
+        if (state.midi.connected && state.midi.mode === 'mtc' && state.midi.mtc.active) {
+          if (now - state.midi.mtc.lastUpdate > 500) {
+            state.midi.mtc.active = false;
+            stopTransport();
+          }
+        }
+
+        if ((state.transport.state === 'play' || state.transport.state === 'record') && !midiTimingActive) {
+          const elapsed = (performance.now() - state.transport.baseRealTime) / 1000;
+          state.transport.playheadSeconds = state.transport.basePlayheadSeconds + elapsed;
+          updatePlayheadUI();
+          updateRecordingPlacements();
+        }
+        updatePreview();
+        requestAnimationFrame(tick);
+      }
+
+      function init() {
+        cacheDom();
+        setupEvents();
+        populateResolutionOptions();
+        refreshDevices().finally(() => {
+          setCameraStatus('off');
+          warmUpCamera();
+        });
+        setPanelCollapsed('bin', state.ui.binCollapsed);
+        setPanelCollapsed('inspector', state.ui.inspectorCollapsed);
+        dom.midiModeSelect.value = state.midi.mode;
+        const midiSupported = !!navigator.requestMIDIAccess;
+        if (midiSupported) {
+          setMidiStatus('ready', 'MIDI Ready');
+        } else {
+          setMidiStatus('warn', 'MIDI Unsupported');
+        }
+        dom.midiConnectBtn.disabled = !midiSupported;
+        dom.midiInputSelect.disabled = !midiSupported;
+        dom.midiModeSelect.disabled = !midiSupported;
+        if (midiSupported) {
+          requestMidiAccess().then((access) => {
+            if (!access) return;
+            state.midi.access = access;
+            state.midi.access.onstatechange = refreshMidiInputs;
+            refreshMidiInputs();
+          });
+        }
+        updateExternalMode();
+        if (!state.tracks.length) {
+          addTrack();
+          addTrack();
+        }
+        renderAll();
+        updateFsUi();
+        requestAnimationFrame(tick);
+      }
+
+      window.addEventListener('load', init);
     })();
   </script>
 </body>
