@@ -34,4 +34,5 @@ brew install portaudio
 - The bridge listens on `ws://127.0.0.1:8766`.
 - Allow mic access for `python` in System Settings → Privacy & Security → Microphone.
 - Use `PORT=8080 ./run.sh` to change the web server port.
-- Demo santismo.github.io/GhostNote/ only works for ch 1/2
+
+Demo [santismo.github.io/GhostNote/ ](https://santismo.github.io/GhostNote/) only works for ch 1/2
