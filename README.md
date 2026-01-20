@@ -4,7 +4,7 @@ This package runs GhostNote in Chrome/Firefox while capturing multichannel audio
 
 ## Quick Start (macOS)
 
-1) Open Terminal and run:
+1) Download "ghostnote_bridge" and right click folder and select "New Terminal at Folder" and run:
 
 ```bash
 cd /path/to/ghostnote_bridge
@@ -12,7 +12,7 @@ chmod +x run.sh
 ./run.sh
 ```
 
-2) Open:
+2) Paste intoo Chrome:
 
 ```
 http://localhost:8000/index.html
