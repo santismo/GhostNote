@@ -1,7 +1,0 @@
-numpy
-sounddevice
-mido
-python-rtmidi
-websockets
-PySide6
-pyobjc-framework-AVFoundation
