@@ -12,7 +12,7 @@ chmod +x run.sh
 ./run.sh
 ```
 
-2) Paste intoo Chrome:
+2) Paste into Chrome:
 
 ```
 http://localhost:8000/index.html
