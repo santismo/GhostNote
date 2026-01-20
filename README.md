@@ -1,4 +1,4 @@
-# GhostNote Bridge (Multichannel)
+# GhostNote 
 
 This package runs GhostNote in Chrome/Firefox while capturing multichannel audio using a local Python bridge.
 
